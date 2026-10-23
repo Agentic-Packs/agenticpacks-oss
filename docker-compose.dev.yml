@@ -1,0 +1,50 @@
+services:
+  # 1. PostgreSQL Database (Local Dev)
+  postgres:
+    image: postgres:16-alpine
+    container_name: ai_starter_community_postgres_dev
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: ai_starter_community
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ai_starter_community"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 2. Next.js App with Live Hot-Reloading (HMR)
+  app:
+    image: ai-starter-community-app-dev:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: ai_starter_community_app_dev
+    command: sh -c "npx prisma db push --skip-generate && npm run dev -- -H 0.0.0.0 -p 3000"
+    working_dir: /app
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://postgres:postgrespassword@postgres:5432/ai_starter_community
+      - NEXTAUTH_URL=http://localhost:${PORT:-3000}
+      - NEXT_PUBLIC_APP_URL=http://localhost:${PORT:-3000}
+      - AUTH_SECRET=community-dev-secret-key-32-chars-long
+      - AUTH_TRUST_HOST=true
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_dev_data:

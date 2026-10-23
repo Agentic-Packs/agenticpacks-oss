@@ -1,0 +1,23 @@
+# AI-Starter-Community Cursor Rules & Architectural Directives
+
+## 1. Strict Layer Architecture
+- **React Components (`src/components/`, `src/app/`)**: MUST NEVER call Prisma directly (`prisma.user.find...`, `$queryRaw`, etc.). All data mutations and database queries must go through the dedicated service functions in `src/services/` or server actions/API route handlers.
+- **Service Layer (`src/services/`)**: All business logic, AI completion, token accounting, and Prisma operations live here.
+- **Library Layer (`src/lib/`)**: Shared utilities, database client singleton (`db.ts`), environment schema (`env.ts`), logger (`logger.ts`), and error hierarchy (`errors.ts`).
+
+## 2. Service Function Return Signatures
+All service functions must return a strict Discriminated Union:
+```typescript
+type Result<T> = 
+  | { success: true; data: T } 
+  | { success: false; error: AppError; code: string };
+```
+Never throw unhandled errors in service functions; catch, log with `logger`, and return `{ success: false, error, code }`.
+
+## 3. Type Safety
+- TypeScript strict mode is enabled. NEVER use `any`. Use `unknown`, generic constraints, or explicit Zod inference types (`z.infer<typeof Schema>`).
+- Validate all incoming request bodies using Zod schemas located in `src/lib/validation/`. Use the `withValidation` wrapper on API endpoints.
+
+## 4. Design & Mobile Responsiveness
+- All UI components must be mobile-first and fully responsive across 375px (iPhone SE) to 1440px+ desktop viewports.
+- Use shadcn/ui components and Tailwind CSS design tokens. No inline raw hex styles.
