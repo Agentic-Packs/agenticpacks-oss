@@ -14,7 +14,7 @@ The codebase follows a strict layered architecture with clean domain separation:
 src/
 ├── app/                    # Next.js 15 App Router
 │   ├── (auth)/             # Authentication routes (Sign-in, Register, Verify, Error)
-│   ├── (dashboard)/        # Authenticated dashboard (Chat, Account Settings, Token Billing)
+│   ├── (dashboard)/        # Authenticated dashboard (Chat, Account Settings, Plan & License)
 │   ├── (marketing)/        # Landing page, Pricing, Terms, Privacy
 │   └── api/                # API route handlers with Zod validation
 │       ├── auth/           # NextAuth handlers & register endpoint
@@ -33,7 +33,9 @@ src/
 │   ├── env.ts              # Zod-validated environment configuration
 │   ├── errors.ts           # Unified AppError classes & error codes
 │   ├── logger.ts           # Pino structured JSON logger
+│   ├── utils.ts            # Shared className helper
 │   └── validation/         # Zod schemas for all API payloads
+├── middleware.ts           # Auth.js JWT session validation & route protection
 └── services/               # Core Business Logic Layer (Isolated from React components)
     └── ai/                 # OpenAI streaming engine, token counters & credit deduction
 ```
@@ -45,16 +47,16 @@ src/
 ### 1. Discriminated Union Return Types
 All service layer functions return typed results:
 ```typescript
-import { AppError } from "@/lib/errors";
+import { AppError, AppErrorCode } from "@/lib/errors";
 
 export type Result<T> =
   | { success: true; data: T }
-  | { success: false; error: AppError; code: string };
+  | { success: false; error: AppError; code: AppErrorCode };
 ```
 This enforces explicit error handling at compile time and prevents unhandled runtime exceptions.
 
 ### 2. Zero Prisma in React Components
-Never import `prisma` or `db` inside UI components (`src/components/*` or client components). All database mutations and queries must go through `services/`, Server Actions, or API route handlers.
+Never import `prisma` or `db` inside UI components (`src/components/*` or client components). All database mutations and queries must go through `services/` or API route handlers.
 
 ### 3. Strict API Validation
 All API routes validate inputs with Zod using the `withValidation` wrapper:
@@ -64,13 +66,13 @@ import { chatRequestSchema } from "@/lib/validation/chat.schema";
 
 export const POST = withValidation(chatRequestSchema, async (req, data, session) => {
   // data is strictly typed from schema
-  // session is pre-validated
+  // session is loaded when present; pass { requireAuth: true } to require it
 });
 ```
 
 ### 4. Single-Model AI Streaming (OpenAI GPT-4o-mini)
 - Configured via `OPENAI_API_KEY` (uses `gpt-4o-mini`).
-- **Mock Fallback**: When no OpenAI key is set in development, services stream a high-fidelity simulated response so the complete chat experience can be tested without an API key.
+- Chat requires a valid key: `POST /api/chat` returns `400` when `OPENAI_API_KEY` is missing. There is no mock stream.
 
 ### 5. Real-Time Credit Balance Synchronization
 Because NextAuth JWT sessions do not automatically refresh client-side on database balance changes:
@@ -95,7 +97,7 @@ Because NextAuth JWT sessions do not automatically refresh client-side on databa
 - `npm run prisma:push` - Push schema changes directly to PostgreSQL
 - `npm run prisma:seed` - Seed demo developer user (`user@demo.com` / `password123`)
 - `npm run prisma:studio` - Visual database explorer on `http://localhost:5555`
-- `docker compose -f docker-compose.dev.yml up -d` - Start development stack with live HMR
+- `docker compose -f docker-compose.dev.yml up -d` - Start development stack with live HMR (run `npm run prisma:seed` in the app container afterward for the demo user)
 - `docker compose up -d --build` - Build and launch production containers
 
 ---

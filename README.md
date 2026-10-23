@@ -3,7 +3,7 @@
 > **The 100% Free, Open-Source Next.js 15 AI Starter Kit** — Built for speed, developer delight, and zero architectural bloat.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Next.js 15](https://img.shields.io/badge/Next.js-15.1-black?logo=next.js)](https://nextjs.org/)
+[![Next.js 15](https://img.shields.io/badge/Next.js-15.2-black?logo=next.js)](https://nextjs.org/)
 [![React 19](https://img.shields.io/badge/React-19.0-61dafb?logo=react)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict-3178c6?logo=typescript)](https://www.typescriptlang.org/)
 [![Auth.js v5](https://img.shields.io/badge/Auth.js-v5_Beta-purple)](https://authjs.dev/)
@@ -63,6 +63,9 @@ cp .env.example .env
 
 # 4. Start local development environment
 docker compose -f docker-compose.dev.yml up -d
+
+# 5. Seed the demo account (schema push is automatic; seed is not)
+docker compose -f docker-compose.dev.yml exec app npm run prisma:seed
 ```
 
 - App: **[http://localhost:3000](http://localhost:3000)**
@@ -113,7 +116,7 @@ docker compose up -d --build
 [Middleware (Auth.js v5 JWT Session Validation & Route Protection)]
        │
        ▼
-[API Routes (Server Actions + withValidation Zod Schemas)]
+[API Routes (withValidation Zod Schemas)]
        │
        ├──► [Services: AI Streaming (Vercel AI SDK 4 / OpenAI GPT-4o-mini)]
        ├──► [Services: Token Usage Counter & Real-Time Balance Sync]
@@ -133,8 +136,8 @@ ai-starter-community/
 ├── src/
 │   ├── app/
 │   │   ├── (auth)/              # Sign-in, registration, and verification pages
-│   │   ├── (dashboard)/         # Authenticated dashboard (Chat, Account Settings, Token Billing)
-│   │   ├── (marketing)/         # High-converting landing & pricing pages
+│   │   ├── (dashboard)/         # Authenticated dashboard (Chat, Account Settings, Plan & License)
+│   │   ├── (marketing)/         # Landing, pricing, terms, and privacy pages
 │   │   └── api/
 │   │       ├── auth/            # NextAuth session handlers & user registration
 │   │       ├── chat/            # Vercel AI SDK streaming endpoint
@@ -146,11 +149,15 @@ ai-starter-community/
 │   │   ├── shared/              # Navbar, footer, markdown renderer & theme toggles
 │   │   └── ui/                  # Accessible shadcn/ui primitives
 │   ├── lib/
+│   │   ├── auth.config.ts       # Edge-compatible NextAuth route configuration
 │   │   ├── auth.ts              # NextAuth v5 configuration & JWT session callbacks
 │   │   ├── db.ts                # Prisma ORM singleton client
 │   │   ├── env.ts               # Type-safe environment validation
 │   │   ├── errors.ts            # Standard AppError classes & error codes
+│   │   ├── logger.ts            # Pino structured JSON logger
+│   │   ├── utils.ts             # Shared className helper
 │   │   └── validation/          # Zod request validation schemas
+│   ├── middleware.ts            # Auth.js JWT session validation & route protection
 │   └── services/
 │       └── ai/                  # OpenAI streaming, token counters & credit deduction
 ├── docker-compose.dev.yml       # Development Docker stack (App with HMR + Postgres)
@@ -169,7 +176,7 @@ AI-Starter Community is powered by OpenAI's fast, cost-efficient **GPT-4o-mini**
    ```env
    OPENAI_API_KEY="sk-..."
    ```
-2. **Local Dev Without Keys**: If no API key is set, the chat engine seamlessly runs high-fidelity mock streaming responses so you can test UI and workflows without incurring API costs.
+2. **Without a key**: The app still boots, but `POST /api/chat` returns `400` until `OPENAI_API_KEY` is set. There is no mock stream in Community Edition.
 
 ---
 
@@ -180,7 +187,7 @@ AI-Starter Community is powered by OpenAI's fast, cost-efficient **GPT-4o-mini**
 | `DATABASE_URL` | **Yes** | `postgresql://postgres:postgrespassword@localhost:5432/ai_starter_community` | PostgreSQL connection string |
 | `NEXTAUTH_URL` | **Yes** | `http://localhost:3000` | Public origin URL for authentication callbacks |
 | `AUTH_SECRET` | **Yes** | `random-32-char-string` | JWT session encryption secret (`openssl rand -hex 32`) |
-| `OPENAI_API_KEY` | **Yes** | `sk-...` | API key for OpenAI GPT-4o-mini streaming |
+| `OPENAI_API_KEY` | **Yes (for chat)** | `sk-...` | API key for OpenAI GPT-4o-mini streaming. App boots without it; chat requests fail until it is set. |
 | `AUTH_GOOGLE_ID` | *Optional* | `your-google-client-id` | Google OAuth client ID |
 | `AUTH_GOOGLE_SECRET` | *Optional* | `your-google-client-secret` | Google OAuth client secret |
 | `PORT` | *Optional* | `3000` | Application HTTP port |
