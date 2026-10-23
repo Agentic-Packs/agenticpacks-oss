@@ -3,7 +3,7 @@ import { z } from "zod";
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   DATABASE_URL: z.string().default("postgresql://postgres:postgrespassword@localhost:5432/ai_starter_community"),
-  NEXTAUTH_URL: z.string().url().default("http://localhost:3005"),
+  AUTH_URL: z.string().url().default("http://localhost:3000"),
   AUTH_SECRET: z.string().default("community-secret-key-32-chars-long-dev-secret"),
   
   // AI Provider Key (OpenAI)
@@ -18,11 +18,12 @@ const envSchema = z.object({
 });
 
 const isBrowser = typeof window !== "undefined";
+const rawAuthUrl = process.env.AUTH_URL || process.env.NEXTAUTH_URL || "http://localhost:3000";
 
 export const env = envSchema.parse({
   NODE_ENV: process.env.NODE_ENV || "development",
   DATABASE_URL: process.env.DATABASE_URL || (isBrowser ? "postgresql://localhost:5432/ai_starter_community" : undefined),
-  NEXTAUTH_URL: process.env.NEXTAUTH_URL || "http://localhost:3005",
+  AUTH_URL: rawAuthUrl,
   AUTH_SECRET: process.env.AUTH_SECRET || (isBrowser ? "community-secret-key-32-chars-long-dev-secret" : undefined),
   OPENAI_API_KEY: process.env.OPENAI_API_KEY,
   AUTH_GOOGLE_ID: process.env.AUTH_GOOGLE_ID,

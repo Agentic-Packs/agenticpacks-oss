@@ -52,7 +52,7 @@ Runs PostgreSQL and Next.js with **live hot-reloading (HMR)** inside Docker:
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/agenticpacks/ai-starter-community.git
+git clone https://github.com/Agentic-Packs/ai-starter-community.git
 cd ai-starter-community
 
 # 2. Copy environment configuration
@@ -185,7 +185,7 @@ AI-Starter Community is powered by OpenAI's fast, cost-efficient **GPT-4o-mini**
 | Variable | Required | Default / Example | Purpose |
 | :--- | :---: | :--- | :--- |
 | `DATABASE_URL` | **Yes** | `postgresql://postgres:postgrespassword@localhost:5432/ai_starter_community` | PostgreSQL connection string |
-| `NEXTAUTH_URL` | **Yes** | `http://localhost:3000` | Public origin URL for authentication callbacks |
+| `AUTH_URL` | **Yes** | `http://localhost:3000` | Public origin URL for Auth.js callbacks (`NEXTAUTH_URL` also supported) |
 | `AUTH_SECRET` | **Yes** | `random-32-char-string` | JWT session encryption secret (`openssl rand -hex 32`) |
 | `OPENAI_API_KEY` | **Yes (for chat)** | `sk-...` | API key for OpenAI GPT-4o-mini streaming. App boots without it; chat requests fail until it is set. |
 | `AUTH_GOOGLE_ID` | *Optional* | `your-google-client-id` | Google OAuth client ID |
