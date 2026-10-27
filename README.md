@@ -30,16 +30,22 @@ A modern, production-grade foundation for building AI web applications, indie ha
 **[AI-Starter-Pro ($149)](https://agenticpacks.com/templates/ai-starter-pro)** is for commercial founders who need multi-tenant teams, 3-tier Stripe billing, pgvector RAG, multi-agent workflows, and automated self-hosted production deployment.
 
 | Feature / Architecture | 🆓 Community Edition (MIT) | 💎 AI-Starter-Pro ($149) |
-| :--- | :---: | :---: |
-| **Ideal For** | Personal MVPs, Prototypes, Hackathons | Commercial AI Startups, Micro-SaaS Founders |
-| **Infrastructure & Hosting** | Local Docker Compose (manual VPS setup) | Automated Terraform IaC + Caddy SSL deployment |
-| **AI Capability** | Basic single-model chat (GPT-4o-mini) | Autonomous multi-agent workflows + Tavily web search |
-| **AI Models** | OpenAI GPT-4o-mini | Multi-model (OpenAI, Claude 3.7 Sonnet, Gemini 2.0 Flash) |
-| **Token Tracking & Margins** | Live credit balance & total tokens counter | Token-to-cost ledger (map token usage directly to dollar costs) |
-| **Stripe Billing** | Free + Pro $19/mo Checkout | 3-tier subscriptions, proration & team credit pools |
-| **Observability** | Local Pino logs | Admin dashboard + user metrics & telemetry |
-| **Vector DB & RAG** | ❌ None | ✅ PostgreSQL pgvector semantic document search |
-| **Multi-Tenancy** | Single user only | Team workspaces, JWT member invites & RBAC |
+| :--- | :--- | :--- |
+| **Ideal For** | Personal MVPs, Prototypes, Hackathons | **Commercial AI Startups, Micro-SaaS Founders** |
+| **Framework & UI** | Next.js 15 (App Router) + React 19 + shadcn/ui | Next.js 15 (App Router) + React 19 + shadcn/ui |
+| **Styling & Themes** | Tailwind CSS + Dark / Light Mode | Tailwind CSS + Dark / Light Mode |
+| **Authentication** | Auth.js v5 (Credentials + Google OAuth) | Auth.js v5 + Magic Links + **RBAC** |
+| **Database** | PostgreSQL 16 + Prisma ORM | PostgreSQL 16 + Prisma ORM + **`pgvector` Vector DB** |
+| **AI Streaming Chat** | ✅ Vercel AI SDK 4 (OpenAI GPT-4o-mini) | ✅ **Multi-Model Router (OpenAI, Claude 3.7 Sonnet, Gemini 2.0 Flash)** |
+| **Token Tracking & Margins** | ✅ Live Credit Balance & Total Tokens Counter | ✅ **Token-to-Cost Ledger (map token usage directly to dollar costs)** |
+| **Stripe Billing** | ✅ Free + Pro $19/mo Checkout, webhooks & credit counter | ✅ **3-Tier Subscriptions, Portal Upgrades, Proration & Team Credit Pools** |
+| **Observability** | ✅ Local Pino Structured JSON Logs | ✅ **Admin Dashboard + User Metrics & Telemetry** |
+| **Infrastructure & Hosting** | ✅ Local Docker Compose (manual VPS setup) | ✅ **Automated Terraform IaC + Caddy SSL Deployment** |
+| **Autonomous Multi-Agent** | ❌ None | ✅ **LangGraph Workflows + Tavily Web Search** |
+| **Vector DB & RAG** | ❌ None | ✅ **PostgreSQL pgvector Semantic Document Search** |
+| **Rate Limiting & Redis** | ❌ None | ✅ **Redis Cache, Rate Limiting & Session Throttling** |
+| **Multi-Tenancy** | ❌ Single User Only | ✅ **Team Workspaces, JWT Member Invites & RBAC** |
+| **Super Admin Portal** | ❌ None | ✅ **Admin Metrics, User Telemetry & Manual Grants** |
 
 ---
 
