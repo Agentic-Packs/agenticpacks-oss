@@ -25,7 +25,7 @@ services:
       context: .
       dockerfile: Dockerfile.dev
     container_name: ai_starter_community_app_dev
-    command: sh -c "npx prisma db push --skip-generate && npm run dev -- -H 0.0.0.0 -p 3000"
+    command: sh -c "npx prisma db push --accept-data-loss --skip-generate && npm run dev -- -H 0.0.0.0 -p 3000"
     working_dir: /app
     restart: unless-stopped
     ports:
@@ -38,6 +38,9 @@ services:
       - AUTH_SECRET=community-dev-secret-key-32-chars-long
       - AUTH_TRUST_HOST=true
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      - STRIPE_APP_ID=${STRIPE_APP_ID:-ai-starter-community}
     volumes:
       - .:/app
       - /app/node_modules

@@ -34,6 +34,9 @@ services:
       - AUTH_SECRET=community-prod-secret-key-32-chars-long
       - AUTH_TRUST_HOST=true
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      - STRIPE_APP_ID=${STRIPE_APP_ID:-ai-starter-community}
     depends_on:
       postgres:
         condition: service_healthy

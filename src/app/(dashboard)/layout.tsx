@@ -18,6 +18,7 @@ export default async function DashboardLayout({
         email: session.user.email,
         image: session.user.image,
         role: session.user.role,
+        plan: session.user.plan,
         credits: session.user.credits,
       }
     : {
@@ -25,6 +26,7 @@ export default async function DashboardLayout({
         name: "Demo Developer",
         email: "demo@example.com",
         role: "USER",
+        plan: "free",
         credits: 100,
       };
 
@@ -37,23 +39,26 @@ export default async function DashboardLayout({
             ...(user.email ? [{ email: user.email.toLowerCase() }] : []),
           ],
         },
-        select: { id: true, name: true, email: true, image: true, role: true, credits: true },
+        select: { id: true, name: true, email: true, image: true, role: true, plan: true, credits: true },
       });
 
       if (dbUser) {
         user = { ...user, ...dbUser };
       }
     } catch {
-      // Fallback
+      // Fallback to session values
     }
   }
 
   return (
     <div className="flex h-screen w-full bg-background overflow-hidden">
-      {/* Desktop Sidebar */}
-      <DashboardSidebar userCredits={user.credits} userRole={user.role} className="hidden md:flex md:w-64 lg:w-72 shrink-0" />
+      <DashboardSidebar
+        userCredits={user.credits}
+        userRole={user.role}
+        userPlan={user.plan}
+        className="hidden md:flex md:w-64 lg:w-72 shrink-0"
+      />
 
-      {/* Main Content Area */}
       <div className="flex flex-1 flex-col overflow-hidden">
         <DashboardHeader user={user} />
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">

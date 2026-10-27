@@ -28,7 +28,7 @@ declare module "next-auth" {
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
   ...authConfig,
-  adapter: PrismaAdapter(db),
+  adapter: PrismaAdapter(db as unknown as Parameters<typeof PrismaAdapter>[0]),
   providers: [
     ...(env.AUTH_GOOGLE_ID && env.AUTH_GOOGLE_SECRET
       ? [
@@ -77,9 +77,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             name: user?.name || "Demo Developer",
             email: "user@demo.com",
             image: null,
-            role: "USER",
-            plan: "free",
-            credits: 100,
+            role: user?.role || "USER",
+            plan: user?.plan || "free",
+            credits: user?.credits ?? 100,
           };
         }
 
@@ -124,6 +124,32 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (session?.role !== undefined) token.role = session.role;
         if (session?.name !== undefined) token.name = session.name;
         if (session?.image !== undefined) token.picture = session.image;
+      }
+
+      const effectiveId = (token.id as string) || (token.sub as string);
+      const effectiveEmail = token.email as string | undefined;
+      const userLookup = [
+        ...(effectiveId && effectiveId !== "demo-user" ? [{ id: effectiveId }] : []),
+        ...(effectiveEmail ? [{ email: effectiveEmail.toLowerCase() }] : []),
+      ];
+
+      if (userLookup.length > 0) {
+        try {
+          const dbUser = await db.user.findFirst({
+            where: { OR: userLookup },
+            select: { id: true, role: true, plan: true, credits: true, name: true, image: true },
+          });
+          if (dbUser) {
+            if (token.id !== dbUser.id) token.id = dbUser.id;
+            if (token.role !== dbUser.role) token.role = dbUser.role;
+            if (token.plan !== dbUser.plan) token.plan = dbUser.plan;
+            if (token.credits !== dbUser.credits) token.credits = dbUser.credits;
+            if (dbUser.name && token.name !== dbUser.name) token.name = dbUser.name;
+            if (dbUser.image && token.picture !== dbUser.image) token.picture = dbUser.image;
+          }
+        } catch {
+          // keep existing token values
+        }
       }
 
       return token;

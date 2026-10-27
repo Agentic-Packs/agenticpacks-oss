@@ -4,10 +4,12 @@ const nextConfig: NextConfig = {
   output: "standalone",
   serverExternalPackages: [
     "@prisma/client",
+    "src/generated/prisma",
     "prisma",
     "pino",
     "pino-pretty",
     "bcryptjs",
+    "stripe",
   ],
   experimental: {
     serverActions: {

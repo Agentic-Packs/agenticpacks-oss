@@ -241,7 +241,7 @@ export default function LandingPage() {
             Take Your Product Further with <span className="gradient-text">AI-Starter-Pro</span>
           </h2>
           <p className="text-muted-foreground text-sm max-w-xl mx-auto leading-relaxed">
-            Need Stripe Subscriptions, Multi-Tenant Teams, LangGraph Autonomous Multi-Agent Workflows, pgvector Contextual RAG, and Hetzner Terraform IaC?
+            Need 3-tier Stripe, multi-tenant teams, LangGraph agents, pgvector RAG, and Hetzner Terraform IaC?
           </p>
           <div className="pt-2">
             <Button asChild size="lg" className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 font-bold shadow-lg">

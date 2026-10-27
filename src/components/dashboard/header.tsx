@@ -34,11 +34,11 @@ interface HeaderProps {
 export function DashboardHeader({ user }: HeaderProps) {
   const { data: session } = useSession();
 
-  const effectiveName = session?.user?.name || user?.name || "Member";
-  const effectiveEmail = session?.user?.email || user?.email || "user@example.com";
-  const effectiveImage = session?.user?.image || user?.image || "";
-  const effectiveRole = session?.user?.role || user?.role || "USER";
-  const effectivePlan = session?.user?.plan || user?.plan || "free";
+  const effectiveName = user?.name || session?.user?.name || "Member";
+  const effectiveEmail = user?.email || session?.user?.email || "user@example.com";
+  const effectiveImage = user?.image || session?.user?.image || "";
+  const effectiveRole = user?.role || session?.user?.role || "USER";
+  const effectivePlan = user?.plan || session?.user?.plan || "free";
   const effectiveCredits =
     typeof user?.credits === "number"
       ? user.credits
@@ -113,7 +113,7 @@ export function DashboardHeader({ user }: HeaderProps) {
             <DropdownMenuItem asChild>
               <Link href="/dashboard/billing" className="flex items-center gap-2">
                 <CreditCard className="h-4 w-4 text-muted-foreground" />
-                <span>Plan & License</span>
+                <span>Billing</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />

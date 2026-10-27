@@ -42,7 +42,7 @@ export async function recordUsageAndDeductCredits(
         completionTokens,
         totalTokens,
         endpoint,
-      } as unknown as Parameters<typeof db.usageLog.create>[0]["data"],
+      },
     });
 
     return success({

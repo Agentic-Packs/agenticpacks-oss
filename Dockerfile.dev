@@ -15,4 +15,4 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["sh", "-c", "npx prisma db push --skip-generate && npm run dev -- -H 0.0.0.0 -p 3000"]
+CMD ["sh", "-c", "npx prisma db push --accept-data-loss --skip-generate && npm run dev -- -H 0.0.0.0 -p 3000"]

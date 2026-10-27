@@ -55,11 +55,14 @@ export default async function DashboardPage() {
           <p className="text-white/80 text-sm sm:text-base leading-relaxed">
             Your production-ready Next.js 15 AI template is ready. Start a new streaming chat conversation or customize this starter for your own projects.
           </p>
-          <div className="pt-2">
+          <div className="pt-2 flex flex-col sm:flex-row gap-2">
             <Button asChild size="lg" className="bg-white text-indigo-700 hover:bg-white/90 font-bold shadow-md">
               <Link href="/dashboard/chat">
                 Start AI Chat <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="border-white/40 bg-white/10 text-white hover:bg-white/20 hover:text-white">
+              <Link href="/dashboard/billing">Manage billing</Link>
             </Button>
           </div>
         </div>

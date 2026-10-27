@@ -1,76 +1,105 @@
 import React from "react";
 import Link from "next/link";
-import { Check, Sparkles } from "lucide-react";
+import { Check, Sparkles, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { PLANS } from "@/lib/plans";
 
 export default function PricingPage() {
   return (
-    <div className="py-16 md:py-24 max-w-5xl mx-auto px-4">
-      <div className="text-center space-y-4 mb-16">
-        <Badge variant="outline" className="px-3 py-1 text-sm border-primary/30 text-primary">
-          Simple, Transparent Plans
-        </Badge>
-        <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
-          Start Free, Upgrade When You Need Pro Scale
-        </h1>
-        <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-          Deploy the MIT Community template for your personal side projects, or get AI-Starter-Pro for enterprise features.
-        </p>
-      </div>
+    <div className="py-16 md:py-24 max-w-5xl mx-auto px-4 space-y-20">
+      <section className="space-y-10">
+        <div className="text-center space-y-4">
+          <Badge variant="outline" className="px-3 py-1 text-sm border-primary/30 text-primary">
+            In-app SaaS plans
+          </Badge>
+          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
+            What your users pay
+          </h1>
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            Community includes Stripe Checkout and the Customer Portal for a Free plan and one Pro plan at $19/mo (500 credits).
+          </p>
+        </div>
 
-      <div className="grid md:grid-cols-2 gap-8 items-stretch">
-        <Card className="flex flex-col border-border/80 shadow-sm relative">
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold">Community Edition</CardTitle>
-            <CardDescription>Free forever for solo developers and personal projects.</CardDescription>
-            <div className="pt-4">
-              <span className="text-4xl font-black">$0</span>
-              <span className="text-muted-foreground text-sm"> / forever (MIT)</span>
-            </div>
-          </CardHeader>
-          <CardContent className="flex-1 space-y-3">
-            <ul className="space-y-2.5 text-sm">
-              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-emerald-500" /> Next.js 15 App Router & React 19</li>
-              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-emerald-500" /> Auth.js v5 (Google, GitHub, Credentials)</li>
-              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-emerald-500" /> PostgreSQL + Prisma ORM (Neon / Supabase ready)</li>
-              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-emerald-500" /> Vercel AI SDK Streaming Chat</li>
-              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-emerald-500" /> Tailwind CSS & shadcn/ui components</li>
-            </ul>
-          </CardContent>
-          <CardFooter>
-            <Button asChild className="w-full" variant="outline">
-              <Link href="/dashboard">Get Started Free</Link>
-            </Button>
-          </CardFooter>
-        </Card>
+        <div className="grid md:grid-cols-2 gap-8 items-stretch">
+          {Object.values(PLANS).map((plan) => (
+            <Card
+              key={plan.id}
+              className={`relative flex flex-col ${plan.popular ? "border-primary/50 shadow-xl bg-gradient-to-b from-primary/5 to-card" : "border-border/80 shadow-sm"}`}
+            >
+              {plan.popular && (
+                <div className="absolute -top-3 right-6">
+                  <Badge className="bg-primary text-primary-foreground font-bold">Most popular</Badge>
+                </div>
+              )}
+              <CardHeader className="relative">
+                <CardTitle className="text-2xl font-bold">{plan.name}</CardTitle>
+                <CardDescription>{plan.description}</CardDescription>
+                <div className="pt-4 flex items-baseline gap-1">
+                  <span className="text-4xl font-black">${plan.priceMonthly}</span>
+                  <span className="text-muted-foreground text-sm"> / month</span>
+                </div>
+                <div className="pt-2 text-xs font-semibold text-primary flex items-center gap-1">
+                  <Zap className="h-3.5 w-3.5 fill-primary" />
+                  {plan.credits.toLocaleString()} credits{plan.id === "pro" ? " / cycle" : " to start"}
+                </div>
+              </CardHeader>
+              <CardContent className="flex-1 space-y-3">
+                <ul className="space-y-2.5 text-sm">
+                  {plan.features.map((feature) => (
+                    <li key={feature} className="flex items-center gap-2">
+                      <Check className="h-4 w-4 text-emerald-500 shrink-0" />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+              <CardFooter>
+                <Button asChild className="w-full" variant={plan.popular ? "default" : "outline"}>
+                  <Link href="/dashboard/billing">{plan.id === "pro" ? "Upgrade in dashboard" : "Start free"}</Link>
+                </Button>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      </section>
 
-        <Card className="flex flex-col border-primary/50 shadow-xl relative bg-gradient-to-b from-primary/5 to-card">
+      <section className="space-y-10">
+        <div className="text-center space-y-4">
+          <Badge variant="outline" className="px-3 py-1 text-sm border-primary/30 text-primary">
+            Template license
+          </Badge>
+          <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
+            What you pay for the source
+          </h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Community is MIT. AI-Starter-Pro is the $149 commercial kit with agents, RAG, and teams.
+          </p>
+        </div>
+
+        <Card className="flex flex-col border-primary/50 shadow-xl relative bg-gradient-to-b from-primary/5 to-card max-w-xl mx-auto">
           <div className="absolute -top-3 right-6">
-            <Badge className="bg-primary text-primary-foreground font-bold shadow-md">
-              COMMERCIAL
-            </Badge>
+            <Badge className="bg-primary text-primary-foreground font-bold shadow-md">COMMERCIAL</Badge>
           </div>
           <CardHeader>
             <CardTitle className="text-2xl font-bold flex items-center gap-2">
               AI-Starter-Pro <Sparkles className="h-5 w-5 text-amber-500 fill-amber-500" />
             </CardTitle>
-            <CardDescription>For founders, startups, and agencies launching commercial SaaS.</CardDescription>
+            <CardDescription>For founders shipping a full AI SaaS.</CardDescription>
             <div className="pt-4">
               <span className="text-4xl font-black">$149</span>
-              <span className="text-muted-foreground text-sm"> / one-time commercial license</span>
+              <span className="text-muted-foreground text-sm"> / one-time license</span>
             </div>
           </CardHeader>
           <CardContent className="flex-1 space-y-3">
             <ul className="space-y-2.5 text-sm">
               <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Everything in Community, plus:</li>
-              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Stripe Subscriptions, Checkout & Webhooks</li>
-              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Multi-Tenant Teams & Shared Credit Pooling</li>
-              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> LangGraph Autonomous Multi-Agent Workflows</li>
-              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> pgvector Contextual RAG & Knowledge Base</li>
-              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Prometheus & Grafana Monitoring</li>
-              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Terraform Hetzner Cloud IaC & Caddy SSL</li>
+              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> 3-tier Stripe, portal upgrades, team credit pools</li>
+              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Multi-tenant teams &amp; JWT invites</li>
+              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> LangGraph autonomous workflows</li>
+              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> pgvector RAG &amp; knowledge base</li>
+              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Redis, Prometheus, Terraform / Caddy</li>
             </ul>
           </CardContent>
           <CardFooter>
@@ -81,7 +110,7 @@ export default function PricingPage() {
             </Button>
           </CardFooter>
         </Card>
-      </div>
+      </section>
     </div>
   );
 }

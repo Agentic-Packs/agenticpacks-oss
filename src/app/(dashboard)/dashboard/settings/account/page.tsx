@@ -344,7 +344,7 @@ export default function AccountSettingsPage() {
                 className="w-full text-xs justify-between"
               >
                 <Link href="/dashboard/billing">
-                  <span>View Plan Details</span>
+                  <span>Manage billing</span>
                   <ExternalLink className="h-3 w-3" />
                 </Link>
               </Button>

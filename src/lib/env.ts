@@ -5,13 +5,18 @@ const envSchema = z.object({
   DATABASE_URL: z.string().default("postgresql://postgres:postgrespassword@localhost:5432/ai_starter_community"),
   AUTH_URL: z.string().url().default("http://localhost:3000"),
   AUTH_SECRET: z.string().default("community-secret-key-32-chars-long-dev-secret"),
-  
+
   // AI Provider Key (OpenAI)
   OPENAI_API_KEY: z.string().optional(),
 
   // Optional OAuth
   AUTH_GOOGLE_ID: z.string().optional(),
   AUTH_GOOGLE_SECRET: z.string().optional(),
+
+  // Stripe (optional until Checkout is used)
+  STRIPE_SECRET_KEY: z.string().optional().default(""),
+  STRIPE_WEBHOOK_SECRET: z.string().optional().default(""),
+  STRIPE_APP_ID: z.string().optional().default(""),
 
   // Logging
   LOG_LEVEL: z.string().default("info"),
@@ -28,5 +33,8 @@ export const env = envSchema.parse({
   OPENAI_API_KEY: process.env.OPENAI_API_KEY,
   AUTH_GOOGLE_ID: process.env.AUTH_GOOGLE_ID,
   AUTH_GOOGLE_SECRET: process.env.AUTH_GOOGLE_SECRET,
+  STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+  STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
+  STRIPE_APP_ID: process.env.STRIPE_APP_ID,
   LOG_LEVEL: process.env.LOG_LEVEL,
 });

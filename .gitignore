@@ -40,3 +40,5 @@ next-env.d.ts
 # prisma
 prisma/*.db
 prisma/*.db-journal
+src/generated/prisma/**/*.node
+src/generated/prisma/**/*.wasm

@@ -1,257 +1,388 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
+import { PLANS } from "@/lib/plans";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  Check,
-  Zap,
-  Sparkles,
-  ExternalLink,
-  Shield,
-  Layers,
-  Code2,
-  Cpu,
-  Database,
   ArrowRight,
+  Check,
+  CheckCircle2,
+  ExternalLink,
+  Sparkles,
+  Zap,
 } from "lucide-react";
-import Link from "next/link";
 
-export default function BillingPage() {
-  const { data: session } = useSession();
-  const [credits, setCredits] = useState<number>(100);
-  const [totalTokens, setTotalTokens] = useState<number>(0);
-  const [loading, setLoading] = useState<boolean>(true);
+function apiErrorMessage(json: unknown, fallback: string): string {
+  if (typeof json !== "object" || json === null || !("error" in json)) return fallback;
+  const error = json.error;
+  if (typeof error !== "object" || error === null || !("message" in error)) return fallback;
+  return typeof error.message === "string" ? error.message : fallback;
+}
+
+function BillingContent() {
+  const { data: session, status, update: updateSession } = useSession();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const handledSuccess = useRef(false);
+
+  const plan = session?.user?.plan || (status === "loading" ? null : "free");
+  const credits = typeof session?.user?.credits === "number" ? session.user.credits : 100;
+
+  const [hasStripeCustomer, setHasStripeCustomer] = useState(false);
+  const [totalTokens, setTotalTokens] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [portalLoading, setPortalLoading] = useState(false);
 
   useEffect(() => {
-    async function loadStats() {
+    let cancelled = false;
+
+    const loadStats = async () => {
       try {
         const [profileRes, usageRes] = await Promise.all([
           fetch("/api/user/profile"),
           fetch("/api/user/usage"),
         ]);
+        if (cancelled) return;
+
         if (profileRes.ok) {
-          const pData = await profileRes.json();
-          const userCredits = pData.data?.credits ?? pData.credits;
-          if (typeof userCredits === "number") setCredits(userCredits);
+          const profileJson: unknown = await profileRes.json();
+          if (
+            typeof profileJson === "object" &&
+            profileJson !== null &&
+            "data" in profileJson &&
+            typeof profileJson.data === "object" &&
+            profileJson.data !== null
+          ) {
+            const data = profileJson.data as { hasStripeCustomer?: boolean };
+            if (typeof data.hasStripeCustomer === "boolean") {
+              setHasStripeCustomer(data.hasStripeCustomer);
+            }
+          }
         }
+
         if (usageRes.ok) {
-          const uData = await usageRes.json();
-          const tokens = uData.data?.summary?.totalTokens;
-          if (typeof tokens === "number") setTotalTokens(tokens);
+          const usageJson: unknown = await usageRes.json();
+          if (
+            typeof usageJson === "object" &&
+            usageJson !== null &&
+            "data" in usageJson &&
+            typeof usageJson.data === "object" &&
+            usageJson.data !== null &&
+            "summary" in usageJson.data &&
+            typeof usageJson.data.summary === "object" &&
+            usageJson.data.summary !== null &&
+            "totalTokens" in usageJson.data.summary &&
+            typeof usageJson.data.summary.totalTokens === "number"
+          ) {
+            setTotalTokens(usageJson.data.summary.totalTokens);
+          }
         }
-      } catch (err) {
-        console.error("Failed to load user stats", err);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
-    }
-    loadStats();
+    };
+
+    void loadStats();
+    return () => {
+      cancelled = true;
+    };
   }, []);
+
+  useEffect(() => {
+    if (searchParams.get("success") !== "true" || handledSuccess.current) return;
+    handledSuccess.current = true;
+    toast.success("Checkout complete.");
+    void updateSession({ plan: "pro" });
+    router.replace("/dashboard/billing");
+  }, [searchParams, router, updateSession]);
+
+  const handleCheckout = async () => {
+    setCheckoutLoading(true);
+    try {
+      const res = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ planId: "pro" }),
+      });
+      const json: unknown = await res.json();
+      if (
+        !res.ok ||
+        typeof json !== "object" ||
+        json === null ||
+        !("data" in json) ||
+        typeof json.data !== "object" ||
+        json.data === null ||
+        !("url" in json.data) ||
+        typeof json.data.url !== "string"
+      ) {
+        throw new Error(apiErrorMessage(json, "Failed to start Checkout"));
+      }
+      window.location.href = json.data.url;
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Checkout failed");
+      setCheckoutLoading(false);
+    }
+  };
+
+  const handlePortal = async (flow: "portal" | "cancel" = "portal") => {
+    setPortalLoading(true);
+    try {
+      const res = await fetch("/api/stripe/portal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ flow }),
+      });
+      const json: unknown = await res.json();
+      if (
+        !res.ok ||
+        typeof json !== "object" ||
+        json === null ||
+        !("data" in json) ||
+        typeof json.data !== "object" ||
+        json.data === null ||
+        !("url" in json.data) ||
+        typeof json.data.url !== "string"
+      ) {
+        throw new Error(apiErrorMessage(json, "Failed to open the billing portal"));
+      }
+      window.location.href = json.data.url;
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Billing portal failed");
+      setPortalLoading(false);
+    }
+  };
+
+  const isPro = plan === "pro";
+  const planLabel = plan ? `${plan} plan` : "...";
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto p-4 md:p-8">
-      {/* Page Header */}
-      <div>
-        <div className="flex items-center gap-2 mb-1">
-          <Badge variant="outline" className="text-xs px-2.5 py-0.5 border-primary/30 text-primary">
-            Plan &amp; License
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <Badge variant="outline" className="text-xs px-2.5 py-0.5 border-primary/30 text-primary mb-2">
+            In-app billing
           </Badge>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            Subscription &amp; usage
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Upgrade, change payment details, or cancel. Free starter credits, or Pro at $19/mo for 500 credits each cycle.
+          </p>
         </div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-          Subscription &amp; Usage
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Review your current tier, generation credit balance, and licensing details.
-        </p>
       </div>
 
-      {/* Plans Comparison */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-        {/* Active Plan: Community Edition */}
-        <Card className="relative flex flex-col justify-between border-2 border-emerald-500/50 bg-card shadow-lg shadow-emerald-500/5">
-          <div className="absolute -top-3 left-6">
-            <Badge className="bg-emerald-600 text-white font-bold text-xs px-3 py-1 shadow-sm">
-              Current Active Plan
-            </Badge>
-          </div>
-
-          <CardHeader className="p-6 pt-8 pb-4">
-            <CardTitle className="text-xl font-bold text-foreground flex items-center justify-between">
-              <span>Community Edition</span>
-              <Badge variant="secondary" className="font-mono text-xs">
-                MIT License
-              </Badge>
-            </CardTitle>
-            <CardDescription className="text-xs text-muted-foreground mt-1">
-              Free forever for developers, students, and personal projects.
-            </CardDescription>
-
-            <div className="mt-4 flex items-baseline gap-1.5">
-              <span className="text-4xl font-black font-mono text-foreground">$0</span>
-              <span className="text-xs text-muted-foreground">/ free forever</span>
-            </div>
-
-            {/* Credit Balance Highlight */}
-            <div className="mt-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3 flex items-center justify-between">
-              <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
-                <Zap className="h-4 w-4 fill-emerald-500" />
-                Available Credits
-              </span>
-              <span className="font-mono font-bold text-foreground text-sm">
-                {loading ? "..." : credits.toLocaleString()}
-              </span>
-            </div>
-
-            {/* Tokens Burned Metric */}
-            <div className="mt-2.5 rounded-xl border border-border/60 bg-muted/30 p-3 flex items-center justify-between">
-              <span className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
-                <Sparkles className="h-4 w-4 text-violet-500" />
-                Total Tokens Burned
-              </span>
-              <span className="font-mono font-bold text-foreground text-sm">
-                {loading ? "..." : totalTokens.toLocaleString()}
-              </span>
-            </div>
-          </CardHeader>
-
-          <CardContent className="p-6 pt-2 flex-1 space-y-4">
-            <div className="border-t border-border/50 pt-4 space-y-2.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                Features Included
-              </span>
-              <ul className="space-y-2 text-xs">
-                <li className="flex items-center gap-2 text-foreground/90">
-                  <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                  <span>Next.js 15 App Router &amp; React 19</span>
-                </li>
-                <li className="flex items-center gap-2 text-foreground/90">
-                  <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                  <span>Single-Model AI Chat (OpenAI GPT-4o Mini)</span>
-                </li>
-                <li className="flex items-center gap-2 text-foreground/90">
-                  <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                  <span>Auth.js v5 (Email/Password + Google OAuth)</span>
-                </li>
-                <li className="flex items-center gap-2 text-foreground/90">
-                  <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                  <span>PostgreSQL Database with Prisma ORM</span>
-                </li>
-                <li className="flex items-center gap-2 text-foreground/90">
-                  <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                  <span>Docker &amp; Docker Compose (Dev + Prod)</span>
-                </li>
-              </ul>
-            </div>
-          </CardContent>
-
-          <CardFooter className="p-6 pt-0">
-            <Button variant="outline" className="w-full text-xs" asChild>
-              <Link href="/dashboard/chat">
-                Start Chatting with GPT-4o Mini
-                <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
-              </Link>
-            </Button>
-          </CardFooter>
-        </Card>
-
-        {/* Upgrade Card: AI-Starter Pro */}
-        <Card className="relative flex flex-col justify-between border border-primary/40 bg-gradient-to-b from-primary/5 via-card to-card shadow-lg shadow-primary/5">
-          <div className="absolute -top-3 right-6">
-            <Badge className="bg-primary text-primary-foreground font-bold text-xs px-3 py-1 shadow-sm">
-              Commercial Boilerplate
-            </Badge>
-          </div>
-
-          <CardHeader className="p-6 pt-8 pb-4">
-            <CardTitle className="text-xl font-bold text-foreground flex items-center gap-2">
-              <span>AI-Starter Pro</span>
-              <Sparkles className="h-4 w-4 text-amber-500 fill-amber-500" />
-            </CardTitle>
-            <CardDescription className="text-xs text-muted-foreground mt-1">
-              Production starter kit for founders launching commercial SaaS.
-            </CardDescription>
-
-            <div className="mt-4 flex items-baseline gap-1.5">
-              <span className="text-4xl font-black font-mono text-foreground">$149</span>
-              <span className="text-xs text-muted-foreground">/ one-time commercial license</span>
-            </div>
-
-            <div className="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-3 text-xs text-muted-foreground">
-              Includes full source code with no recurring royalty fees.
-            </div>
-          </CardHeader>
-
-          <CardContent className="p-6 pt-2 flex-1 space-y-4">
-            <div className="border-t border-border/50 pt-4 space-y-2.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                Pro Capabilities
-              </span>
-              <ul className="space-y-2 text-xs">
-                <li className="flex items-center gap-2 text-foreground/90">
-                  <Check className="h-3.5 w-3.5 text-primary shrink-0" />
-                  <span>Stripe Subscriptions, Customer Portal &amp; Webhooks</span>
-                </li>
-                <li className="flex items-center gap-2 text-foreground/90">
-                  <Check className="h-3.5 w-3.5 text-primary shrink-0" />
-                  <span>LangGraph Autonomous Multi-Agent Workflows</span>
-                </li>
-                <li className="flex items-center gap-2 text-foreground/90">
-                  <Check className="h-3.5 w-3.5 text-primary shrink-0" />
-                  <span>pgvector Contextual RAG Knowledge Base</span>
-                </li>
-                <li className="flex items-center gap-2 text-foreground/90">
-                  <Check className="h-3.5 w-3.5 text-primary shrink-0" />
-                  <span>Multi-Tenant Teams with Member Invitation System</span>
-                </li>
-                <li className="flex items-center gap-2 text-foreground/90">
-                  <Check className="h-3.5 w-3.5 text-primary shrink-0" />
-                  <span>Prometheus Metrics &amp; Grafana Dashboards</span>
-                </li>
-                <li className="flex items-center gap-2 text-foreground/90">
-                  <Check className="h-3.5 w-3.5 text-primary shrink-0" />
-                  <span>Terraform Hetzner Cloud Infrastructure as Code</span>
-                </li>
-              </ul>
-            </div>
-          </CardContent>
-
-          <CardFooter className="p-6 pt-0">
-            <Button asChild className="w-full text-xs font-bold bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 shadow-md">
-              <a href="https://agenticpacks.com/templates/ai-starter-pro" target="_blank" rel="noopener noreferrer">
-                <span>Explore AI-Starter Pro ($149)</span>
-                <ExternalLink className="h-3.5 w-3.5 ml-1.5" />
-              </a>
-            </Button>
-          </CardFooter>
-        </Card>
-      </div>
-
-      {/* Developer FAQ / Guidance Card */}
-      <Card className="border border-border/80 shadow-sm">
+      <Card className="border-primary/20">
         <CardHeader className="p-6 pb-3">
-          <CardTitle className="text-base font-bold flex items-center gap-2">
-            <Code2 className="h-4 w-4 text-primary" />
-            <span>Developer Guide: Integrating Custom Billing</span>
-          </CardTitle>
+          <CardTitle className="text-base font-bold">Your subscription</CardTitle>
           <CardDescription className="text-xs">
-            How billing and credits are structured in this Community codebase.
+            Upgrade here. Manage payment methods or cancel in the Stripe customer portal, then return to this page.
           </CardDescription>
         </CardHeader>
-        <CardContent className="p-6 pt-2 space-y-3 text-xs text-muted-foreground leading-relaxed">
+        <CardContent className="p-6 pt-0 space-y-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge className="capitalize">{planLabel}</Badge>
+            <span className="text-xs text-muted-foreground font-mono">
+              {status === "loading" ? "..." : `${credits.toLocaleString()} credits left`}
+            </span>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2">
+            {plan === "free" && (
+              <Button
+                className="text-xs font-bold bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500"
+                disabled={checkoutLoading}
+                onClick={() => void handleCheckout()}
+              >
+                {checkoutLoading ? (
+                  <>
+                    <Sparkles className="h-3.5 w-3.5 animate-spin mr-1.5" />
+                    Redirecting…
+                  </>
+                ) : (
+                  <>
+                    Upgrade to Pro — $19/mo
+                    <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
+                  </>
+                )}
+              </Button>
+            )}
+            {(isPro || hasStripeCustomer) && (
+              <Button
+                variant="outline"
+                className="text-xs gap-1.5"
+                disabled={portalLoading}
+                onClick={() => void handlePortal("portal")}
+              >
+                {portalLoading ? <Sparkles className="h-3.5 w-3.5 animate-spin" /> : <ExternalLink className="h-3.5 w-3.5" />}
+                Manage subscription
+              </Button>
+            )}
+            {isPro && (
+              <Button
+                variant="outline"
+                className="text-xs text-destructive hover:text-destructive"
+                disabled={portalLoading}
+                onClick={() => void handlePortal("cancel")}
+              >
+                Cancel plan
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <Zap className="h-4 w-4 text-amber-500 fill-amber-500" />
+              Available credits
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold font-mono">
+              {status === "loading" ? "..." : credits.toLocaleString()}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1 capitalize">{planLabel}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-violet-500" />
+              Total tokens used
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold font-mono">{loading ? "..." : totalTokens.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground mt-1">Processed by GPT-4o Mini</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+        {Object.values(PLANS).map((item) => {
+          const isCurrent = plan === item.id;
+          return (
+            <Card
+              key={item.id}
+              className={`relative flex flex-col justify-between ${
+                isCurrent
+                  ? "border-2 border-emerald-500/50 shadow-lg shadow-emerald-500/5"
+                  : item.popular
+                    ? "border border-primary/40 bg-gradient-to-b from-primary/5 via-card to-card"
+                    : "border-border/80"
+              }`}
+            >
+              {isCurrent && (
+                <div className="absolute -top-3 left-6">
+                  <Badge className="bg-emerald-600 text-white font-bold text-xs px-3 py-1">Current plan</Badge>
+                </div>
+              )}
+              {!isCurrent && item.popular && (
+                <div className="absolute -top-3 right-6">
+                  <Badge className="bg-primary text-primary-foreground font-bold text-xs px-3 py-1">Recommended</Badge>
+                </div>
+              )}
+              <CardHeader className="p-6 pt-8 pb-4">
+                <CardTitle className="text-xl font-bold">{item.name}</CardTitle>
+                <CardDescription className="text-xs">{item.description}</CardDescription>
+                <div className="mt-4 flex items-baseline gap-1.5">
+                  <span className="text-4xl font-black font-mono">${item.priceMonthly}</span>
+                  <span className="text-xs text-muted-foreground">/ month</span>
+                </div>
+                <div className="mt-3 text-xs font-semibold text-primary flex items-center gap-1.5">
+                  <Zap className="h-3.5 w-3.5 fill-primary" />
+                  {item.credits.toLocaleString()} credits
+                  {item.id === "pro" ? " / billing cycle" : " to start"}
+                </div>
+              </CardHeader>
+              <CardContent className="p-6 pt-2 flex-1">
+                <ul className="space-y-2 text-xs border-t border-border/50 pt-4">
+                  {item.features.map((feature) => (
+                    <li key={feature} className="flex items-start gap-2">
+                      <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+              <CardFooter className="p-6 pt-0">
+                {item.id === "free" ? (
+                  <Button
+                    variant="outline"
+                    className="w-full text-xs"
+                    disabled={isCurrent || portalLoading || !plan}
+                    onClick={() => void handlePortal("cancel")}
+                  >
+                    {isCurrent ? (
+                      <>
+                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 mr-1.5" />
+                        Current plan
+                      </>
+                    ) : (
+                      "Switch to Free / cancel Pro"
+                    )}
+                  </Button>
+                ) : (
+                  <Button
+                    className="w-full text-xs font-bold bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500"
+                    disabled={isCurrent || checkoutLoading || !plan}
+                    onClick={() => void handleCheckout()}
+                  >
+                    {checkoutLoading ? (
+                      <>
+                        <Sparkles className="h-3.5 w-3.5 animate-spin mr-1.5" />
+                        Redirecting…
+                      </>
+                    ) : isCurrent ? (
+                      "Current plan"
+                    ) : (
+                      <>
+                        Upgrade to Pro
+                        <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
+                      </>
+                    )}
+                  </Button>
+                )}
+              </CardFooter>
+            </Card>
+          );
+        })}
+      </div>
+
+      <Card className="border border-border/80">
+        <CardHeader className="p-6 pb-3">
+          <CardTitle className="text-base font-bold">Need the full commercial kit?</CardTitle>
+          <CardDescription className="text-xs">
+            In-app Pro is $19/mo for your users. AI-Starter-Pro is the $149 one-time source license.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-6 pt-0 text-xs text-muted-foreground space-y-2">
           <p>
-            The Community Edition provides the underlying database structure (<code className="font-mono text-foreground font-semibold">User.credits</code> in Prisma) and API handlers (<code className="font-mono text-foreground font-semibold">/api/user/usage</code>).
+            Pro source adds LangGraph agents, pgvector RAG, team workspaces, 3-tier Stripe, Redis, and Terraform.
           </p>
-          <p>
-            If you wish to integrate your own payment gateway (such as Stripe Checkout, Paddle, or Lemon Squeezy), you can listen to webhook events and call <code className="font-mono text-foreground font-semibold">prisma.user.update</code> to top up user credits.
-          </p>
-          <p>
-            Alternatively, if you prefer a pre-built, tested Stripe billing architecture with customer portal management, webhook verification, and team-shared credit pooling, you can acquire <a href="https://agenticpacks.com/templates/ai-starter-pro" target="_blank" rel="noopener noreferrer" className="text-primary font-semibold hover:underline">AI-Starter Pro</a>.
-          </p>
+          <Button asChild variant="outline" size="sm" className="text-xs gap-1.5 mt-2">
+            <a href="https://agenticpacks.com/templates/ai-starter-pro" target="_blank" rel="noopener noreferrer">
+              Get AI-Starter-Pro ($149)
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+          </Button>
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function BillingPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-xs text-muted-foreground">Loading billing…</div>}>
+      <BillingContent />
+    </Suspense>
   );
 }

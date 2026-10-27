@@ -6,6 +6,7 @@ export type AppErrorCode =
   | "INSUFFICIENT_CREDITS"
   | "INVALID_API_KEY"
   | "AI_PROVIDER_ERROR"
+  | "STRIPE_ERROR"
   | "DATABASE_ERROR"
   | "INTERNAL_SERVER_ERROR";
 
@@ -71,6 +72,8 @@ export const ErrorFactory = {
     failure(msg, "INVALID_API_KEY", 401),
   aiProvider: (msg: string, details?: unknown): Result<never> =>
     failure(msg, "AI_PROVIDER_ERROR", 502, details),
+  stripe: (msg: string, details?: unknown): Result<never> =>
+    failure(msg, "STRIPE_ERROR", 500, details),
   database: (msg = "Database error occurred"): Result<never> =>
     failure(msg, "DATABASE_ERROR", 500),
   internal: (msg = "Internal server error"): Result<never> =>

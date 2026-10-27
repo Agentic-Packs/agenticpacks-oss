@@ -25,7 +25,7 @@ export function MarketingFooter() {
             <h4 className="font-semibold text-sm mb-3">Product</h4>
             <ul className="space-y-2 text-xs text-muted-foreground">
               <li><Link href="/dashboard/chat" className="hover:text-foreground">AI Chat</Link></li>
-              <li><Link href="/dashboard/billing" className="hover:text-foreground">Plan &amp; License</Link></li>
+              <li><Link href="/dashboard/billing" className="hover:text-foreground">Billing</Link></li>
               <li><Link href="/pricing" className="hover:text-foreground">Pricing Comparison</Link></li>
               <li>
                 <a

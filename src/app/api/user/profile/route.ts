@@ -34,6 +34,7 @@ export async function GET() {
         plan: true,
         role: true,
         credits: true,
+        stripeCustomerId: true,
         createdAt: true,
         emailVerified: true,
         passwordHash: true,
@@ -57,11 +58,13 @@ export async function GET() {
         createdAt: user.createdAt,
         emailVerified: user.emailVerified,
         hasPassword: !!user.passwordHash,
+        hasStripeCustomer: Boolean(user.stripeCustomerId),
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Failed to fetch user profile";
     return NextResponse.json(
-      { success: false, error: { message: error.message || "Failed to fetch user profile" } },
+      { success: false, error: { message } },
       { status: 500 }
     );
   }
@@ -101,7 +104,7 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ success: false, error: { message: "User not found" } }, { status: 404 });
     }
 
-    const updateData: Record<string, any> = {};
+    const updateData: { name?: string; passwordHash?: string } = {};
 
     if (name !== undefined) {
       updateData.name = name.trim();
@@ -141,9 +144,10 @@ export async function PATCH(req: NextRequest) {
       success: true,
       data: updatedUser,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Failed to update profile";
     return NextResponse.json(
-      { success: false, error: { message: error.message || "Failed to update profile" } },
+      { success: false, error: { message } },
       { status: 500 }
     );
   }

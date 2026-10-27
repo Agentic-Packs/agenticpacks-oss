@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   MessageSquare,
   User,
+  CreditCard,
   Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -23,6 +24,11 @@ export const navigationItems = [
     title: "AI Chat",
     href: "/dashboard/chat",
     icon: MessageSquare,
+  },
+  {
+    title: "Billing",
+    href: "/dashboard/billing",
+    icon: CreditCard,
   },
   {
     title: "Account Settings",
@@ -54,9 +60,10 @@ export function DashboardSidebar({ userRole, userCredits, userPlan, className, o
   }, [userCredits, session?.user?.credits]);
 
   React.useEffect(() => {
-    const handleUpdate = (e: any) => {
-      if (typeof e.detail?.credits === "number") {
-        setCredits(e.detail.credits);
+    const handleUpdate = (e: Event) => {
+      const creditsUpdated = e as CustomEvent<{ credits?: number }>;
+      if (typeof creditsUpdated.detail?.credits === "number") {
+        setCredits(creditsUpdated.detail.credits);
       }
     };
     window.addEventListener("credits-updated", handleUpdate);
@@ -133,7 +140,11 @@ export function DashboardSidebar({ userRole, userCredits, userPlan, className, o
 
       {/* User Credits Card */}
       <div className="p-3.5 border-t border-border/60">
-        <div className="p-3 rounded-xl border border-border/60 bg-muted/40 flex items-center justify-between text-xs shadow-sm">
+        <Link
+          href="/dashboard/billing"
+          onClick={onNavigate}
+          className="p-3 rounded-xl border border-border/60 bg-muted/40 flex items-center justify-between text-xs shadow-sm hover:border-primary/40 hover:bg-muted/70 transition-colors"
+        >
           <span className="font-medium text-muted-foreground flex items-center gap-2">
             <Zap className="h-4 w-4 text-amber-500 fill-amber-500" />
             <span>AI Credits</span>
@@ -141,7 +152,7 @@ export function DashboardSidebar({ userRole, userCredits, userPlan, className, o
           <span className="font-mono font-bold text-foreground text-sm">
             {credits.toLocaleString()}
           </span>
-        </div>
+        </Link>
       </div>
     </aside>
   );

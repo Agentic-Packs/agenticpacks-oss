@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -14,10 +15,11 @@ model User {
   emailVerified DateTime?
   passwordHash  String?
   image         String?
-  credits       Int            @default(100)
-  role          String         @default("USER")
-  plan          String         @default("free")
-  accounts      Account[]
+  credits          Int            @default(100)
+  role             String         @default("USER")
+  plan             String         @default("free") // free | pro
+  stripeCustomerId String?        @unique
+  accounts         Account[]
   sessions      Session[]
   usageLogs     UsageLog[]
   conversations Conversation[]
