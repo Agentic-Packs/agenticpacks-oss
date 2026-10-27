@@ -2,14 +2,23 @@
 
 > **The 100% Free, Open-Source Next.js 15 AI Starter Kit** — Built for speed, developer delight, and zero architectural bloat.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Next.js 15](https://img.shields.io/badge/Next.js-15.2-black?logo=next.js)](https://nextjs.org/)
-[![React 19](https://img.shields.io/badge/React-19.0-61dafb?logo=react)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-Strict-3178c6?logo=typescript)](https://www.typescriptlang.org/)
-[![Auth.js v5](https://img.shields.io/badge/Auth.js-v5_Beta-purple)](https://authjs.dev/)
-[![Prisma](https://img.shields.io/badge/Prisma-6.4-2D3748?logo=prisma)](https://www.prisma.io/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-v3-38bdf8?logo=tailwindcss)](https://tailwindcss.com/)
-[![Docker](https://img.shields.io/badge/Docker-Ready-2496ed?logo=docker)](https://www.docker.com/)
+<p align="center">
+  <a href="https://demo.ai-saas-starter.agenticpacks.com">🖥️ Live Interactive Demo</a>
+  &nbsp;•&nbsp;
+  <a href="https://agenticpacks.com/templates/ai-starter-pro">💎 Upgrade to Pro ($149)</a>
+  &nbsp;•&nbsp;
+  <a href="https://github.com/Agentic-Packs/ai-starter-community/stargazers">⭐️ Star on GitHub</a>
+</p>
+
+<p align="center">
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT" /></a>
+  <a href="https://nextjs.org/"><img src="https://img.shields.io/badge/Next.js-15.2-black?logo=next.js" alt="Next.js 15" /></a>
+  <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-19.0-61dafb?logo=react" alt="React 19" /></a>
+  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-Strict-3178c6?logo=typescript" alt="TypeScript" /></a>
+  <a href="https://authjs.dev/"><img src="https://img.shields.io/badge/Auth.js-v5_Beta-purple" alt="Auth.js v5" /></a>
+  <a href="https://www.prisma.io/"><img src="https://img.shields.io/badge/Prisma-6.4-2D3748?logo=prisma" alt="Prisma" /></a>
+  <a href="https://www.docker.com/"><img src="https://img.shields.io/badge/Docker-Ready-2496ed?logo=docker" alt="Docker" /></a>
+</p>
 
 A modern, production-grade foundation for building AI web applications, indie hackathon projects, and AI wrapper MVPs without wading through enterprise SaaS bloat. Includes **Vercel AI SDK 4** streaming (OpenAI GPT-4o-mini), **Auth.js v5** (Credentials + Google OAuth), **PostgreSQL + Prisma**, **Stripe Checkout + Customer Portal** (Free + Pro $19), and **live credit and token counters**.
 
@@ -17,31 +26,26 @@ A modern, production-grade foundation for building AI web applications, indie ha
 
 ## 💎 Community Edition vs. AI-Starter-Pro
 
-Building a personal project or prototype? **Community Edition is 100% free under the MIT License.**  
-Need 3-tier billing, multi-agent workflows, vector search, or team workspaces? Check out **[AI-Starter-Pro](https://agenticpacks.com/templates/ai-starter-pro)**.
+**Community Edition is 100% free under the MIT License** — for prototypes, weekend hacks, and MVP testing.  
+**[AI-Starter-Pro ($149)](https://agenticpacks.com/templates/ai-starter-pro)** is for commercial founders who need multi-tenant teams, 3-tier Stripe billing, pgvector RAG, multi-agent workflows, and automated self-hosted production deployment.
 
 | Feature / Architecture | 🆓 Community Edition (MIT) | 💎 AI-Starter-Pro ($149) |
 | :--- | :---: | :---: |
-| **Framework & UI** | Next.js 15 (App Router) + React 19 + shadcn/ui | Next.js 15 (App Router) + React 19 + shadcn/ui |
-| **Styling & Themes** | Tailwind CSS + Smooth Dark / Light Mode | Tailwind CSS + Smooth Dark / Light Mode |
-| **Authentication** | Auth.js v5 (Credentials + Google OAuth) | Auth.js v5 + Magic Links + Role-Based Access Control (RBAC) |
-| **Database** | PostgreSQL 16 + Prisma ORM (Standard SQL) | PostgreSQL 16 + Prisma ORM + **`pgvector` Vector DB** |
-| **AI Streaming Chat** | Vercel AI SDK 4 (OpenAI GPT-4o-mini) | Multi-Model Router (OpenAI, Claude 3.7, Gemini 2.0) |
-| **Autonomous Multi-Agent** | ❌ None | ✅ **LangGraph StateGraph + Tavily Web Search** |
-| **Contextual RAG** | ❌ None | ✅ **Document Chunking & Cosine Vector Search** |
-| **Token Usage & Credits** | ✅ Live Credit Balance & Total Tokens Counter | ✅ Team-shared Credit Pools, Burn Ledger & Limit Enforcement |
-| **Rate Limiting & Redis** | ❌ None | ✅ **Redis cache, rate limiting & session throttling** |
-| **Subscription Billing** | ✅ Stripe Checkout + Customer Portal (Free + Pro $19 / 500 credits) | ✅ **3-tier Stripe, portal upgrades between paid tiers & team credit pools** |
-| **Multi-Tenant Teams** | ❌ None (Single-user workspace) | ✅ **Team Workspaces, JWT Member Invites & RBAC** |
-| **Super Admin Portal** | ❌ None | ✅ **Admin Metrics, User Telemetry & Manual Grants** |
-| **Observability** | Pino Structured JSON Logging | Prometheus Metric Exporter + Grafana Dashboard |
-| **Production DevOps** | Docker Compose (app + Postgres, Dev & Prod) | **Hetzner Terraform IaC + Caddy SSL Automation** |
+| **Ideal For** | Personal MVPs, Prototypes, Hackathons | Commercial AI Startups, Micro-SaaS Founders |
+| **Infrastructure & Hosting** | Local Docker Compose (manual VPS setup) | Automated Terraform IaC + Caddy SSL deployment |
+| **AI Capability** | Basic single-model chat (GPT-4o-mini) | Autonomous multi-agent workflows + Tavily web search |
+| **AI Models** | OpenAI GPT-4o-mini | Multi-model (OpenAI, Claude 3.7 Sonnet, Gemini 2.0 Flash) |
+| **Token Tracking & Margins** | Live credit balance & total tokens counter | Token-to-cost ledger (map token usage directly to dollar costs) |
+| **Stripe Billing** | Free + Pro $19/mo Checkout | 3-tier subscriptions, proration & team credit pools |
+| **Observability** | Local Pino logs | Admin dashboard + user metrics & telemetry |
+| **Vector DB & RAG** | ❌ None | ✅ PostgreSQL pgvector semantic document search |
+| **Multi-Tenancy** | Single user only | Team workspaces, JWT member invites & RBAC |
 
 ---
 
-> ### 🚀 Ready to launch an enterprise AI business?
-> Skip 200+ hours of boilerplate engineering. **[Get AI-Starter-Pro for $149 &rarr;](https://agenticpacks.com/templates/ai-starter-pro)**  
-> *Includes 3-tier Stripe, LangGraph autonomous workflows, pgvector RAG, multi-tenant teams, and Terraform IaC.*
+> ### 🚀 Building a commercial AI SaaS?
+> Skip weeks of infrastructure boilerplate. **AI-Starter-Pro ($149)** adds 3-tier Stripe billing, team workspaces, vector search (RAG), autonomous multi-agent pipelines, and automated self-hosted production deployment.  
+> 👉 **[Explore AI-Starter-Pro →](https://agenticpacks.com/templates/ai-starter-pro)** • *[Test Live Demo ↗](https://demo.ai-saas-starter.agenticpacks.com)*
 
 ---
 
@@ -260,3 +264,11 @@ The **$149** AI-Starter-Pro price is the commercial **template** license, not an
 ## 📄 License
 
 This project is open-source software licensed under the **[MIT License](LICENSE)**. Free to use for personal, educational, and commercial projects.
+
+---
+
+## 🚀 Ready to Ship to Production?
+
+* **Star this repository** if this starter saved you engineering hours!
+* **Building a commercial AI startup?** Check out **[AI-Starter-Pro](https://agenticpacks.com/templates/ai-starter-pro)** to get team workspaces, 3-tier Stripe billing, pgvector RAG, and automated production deployment out of the box.
+* 👉 **[View Live Production Demo ↗](https://demo.ai-saas-starter.agenticpacks.com)**
