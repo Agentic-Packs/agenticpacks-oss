@@ -1,5 +1,7 @@
 # 🚀 AI-Starter Community Edition
 
+> ⭐ If this self-hosted Docker + Auth.js configuration saved you a weekend of debugging, please star the repository (it helps other devs discover it!)
+
 > **The 100% Free, Open-Source Next.js 15 AI Starter Kit** — Built for speed, developer delight, and zero architectural bloat.
 
 <p align="center">
