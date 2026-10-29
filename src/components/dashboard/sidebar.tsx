@@ -99,7 +99,7 @@ export function DashboardSidebar({ userRole, userCredits, userPlan, className, o
             <Sparkles className="h-4 w-4" />
           </div>
           <span className="font-bold text-base tracking-tight">
-            AI-Starter<span className="text-primary font-medium ml-1 text-xs px-1.5 py-0.5 rounded bg-primary/10">OSS</span>
+            AgenticPacks<span className="text-primary font-medium ml-1 text-xs px-1.5 py-0.5 rounded bg-primary/10">OSS</span>
           </span>
         </Link>
       </div>

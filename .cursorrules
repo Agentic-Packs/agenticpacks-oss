@@ -1,4 +1,4 @@
-# AI-Starter-Community Cursor Rules & Architectural Directives
+# AgenticPacks OSS Cursor Rules & Architectural Directives
 
 ## 1. Strict Layer Architecture
 - **React Components (`src/components/`, `src/app/`)**: MUST NEVER call Prisma directly (`prisma.user.find...`, `$queryRaw`, etc.). All data mutations and database queries must go through the dedicated service functions in `src/services/` or server actions/API route handlers.

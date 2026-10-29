@@ -13,7 +13,7 @@ export function MarketingFooter() {
                 <Sparkles className="h-4 w-4" />
               </div>
               <span className="font-bold text-base tracking-tight">
-                AI-Starter<span className="gradient-text font-black">Community</span>
+                AgenticPacks<span className="gradient-text font-black">OSS</span>
               </span>
             </Link>
             <p className="text-xs text-muted-foreground leading-relaxed">
@@ -29,12 +29,12 @@ export function MarketingFooter() {
               <li><Link href="/pricing" className="hover:text-foreground">Pricing Comparison</Link></li>
               <li>
                 <a
-                  href="https://agenticpacks.com/templates/ai-starter-pro"
+                  href="https://agenticpacks.com/agenticpacks-pro"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-foreground inline-flex items-center gap-1 text-primary"
                 >
-                  <span>AI-Starter Pro ($149)</span>
+                  <span>AgenticPacks Pro ($149)</span>
                   <ExternalLink className="h-3 w-3" />
                 </a>
               </li>
@@ -62,7 +62,7 @@ export function MarketingFooter() {
         </div>
 
         <div className="mt-12 pt-6 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-          <p>© {new Date().getFullYear()} AI-Starter Community Edition. Open source under MIT License.</p>
+          <p>© {new Date().getFullYear()} AgenticPacks OSS. Open source under MIT License.</p>
           <div className="flex items-center gap-4">
             <Link href="/privacy" className="hover:text-foreground">Privacy</Link>
             <Link href="/terms" className="hover:text-foreground">Terms</Link>

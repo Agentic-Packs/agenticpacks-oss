@@ -12,7 +12,7 @@ export default function VerifyPage() {
         <div className="space-y-2">
           <h1 className="text-2xl font-bold tracking-tight text-foreground">Check Your Email</h1>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            A sign-in link has been sent to your email address. Click the link in your email to authenticate into your AI-Starter Community dashboard.
+            A sign-in link has been sent to your email address. Click the link in your email to authenticate into your AgenticPacks OSS dashboard.
           </p>
         </div>
         <Button variant="outline" asChild className="w-full gap-2">

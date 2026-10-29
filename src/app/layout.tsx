@@ -23,8 +23,8 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: "AI-Starter-Community | Open Source Next.js 15 AI SaaS Boilerplate",
-    template: "%s | AI-Starter-Community",
+    default: "AgenticPacks OSS | Open Source Next.js 15 AI SaaS Boilerplate",
+    template: "%s | AgenticPacks OSS",
   },
   description:
     "Production-grade Next.js 15 AI SaaS starter kit with Auth.js v5, OpenAI streaming chat, PostgreSQL Prisma ORM, and Docker Compose.",
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     "Auth.js",
     "Open Source",
   ],
-  authors: [{ name: "AI-Starter Community Team" }],
+  authors: [{ name: "AgenticPacks" }],
 };
 
 export default function RootLayout({

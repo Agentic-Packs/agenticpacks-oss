@@ -74,7 +74,7 @@ export default function PricingPage() {
             What you pay for the source
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Community is MIT. AI-Starter-Pro is the $149 commercial kit with agents, RAG, and teams.
+            AgenticPacks OSS is MIT. AgenticPacks Pro is the $149 commercial kit with agents, RAG, and teams.
           </p>
         </div>
 
@@ -84,7 +84,7 @@ export default function PricingPage() {
           </div>
           <CardHeader>
             <CardTitle className="text-2xl font-bold flex items-center gap-2">
-              AI-Starter-Pro <Sparkles className="h-5 w-5 text-amber-500 fill-amber-500" />
+              AgenticPacks Pro <Sparkles className="h-5 w-5 text-amber-500 fill-amber-500" />
             </CardTitle>
             <CardDescription>For founders shipping a full AI SaaS.</CardDescription>
             <div className="pt-4">
@@ -104,7 +104,7 @@ export default function PricingPage() {
           </CardContent>
           <CardFooter>
             <Button asChild className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 font-bold">
-              <a href="https://agenticpacks.com/templates/ai-starter-pro" target="_blank" rel="noopener noreferrer">
+              <a href="https://agenticpacks.com/agenticpacks-pro" target="_blank" rel="noopener noreferrer">
                 Explore Pro Edition
               </a>
             </Button>

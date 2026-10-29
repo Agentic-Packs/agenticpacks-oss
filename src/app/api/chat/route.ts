@@ -68,7 +68,7 @@ export const POST = withValidation(
     try {
       const result = streamText({
         model: activeAI.model,
-        system: `You are AI-Starter, a helpful and precise AI assistant.
+        system: `You are AgenticPacks, a helpful and precise AI assistant.
 Format your responses using GitHub-flavored Markdown. Provide clear, concise answers.`,
         messages: messages.map((m) => ({
           role: m.role as "user" | "assistant" | "system",

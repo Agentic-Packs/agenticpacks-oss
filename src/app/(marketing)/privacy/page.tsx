@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | AI-Starter Community",
+  title: "Privacy Policy | AgenticPacks OSS",
   description: "Privacy Policy and data collection guidelines.",
 };
 

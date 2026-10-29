@@ -16,7 +16,7 @@ export const logger = pino({
       }
     : undefined,
   base: {
-    service: "ai-starter-community",
+    service: "agenticpacks-oss",
     env: env.NODE_ENV,
   },
   timestamp: pino.stdTimeFunctions.isoTime,

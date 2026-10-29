@@ -28,7 +28,7 @@ export default function LandingPage() {
             <div className="flex-1 text-center md:text-left space-y-6 max-w-2xl w-full min-w-0 px-2 sm:px-0">
               <div className="inline-flex flex-wrap justify-center items-center gap-2 px-3 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-xs font-semibold text-primary">
                 <Sparkles className="h-3.5 w-3.5" />
-                <span>Next.js 15 AI Starter Kit</span>
+                <span>Next.js 15 AI SaaS boilerplate</span>
                 <span className="hidden sm:inline-block h-1 w-1 rounded-full bg-primary" />
                 <span className="text-muted-foreground font-normal">MIT Free & Open Source</span>
               </div>
@@ -238,15 +238,15 @@ export default function LandingPage() {
             Need Enterprise SaaS Capabilities?
           </Badge>
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-            Take Your Product Further with <span className="gradient-text">AI-Starter-Pro</span>
+            Take Your Product Further with <span className="gradient-text">AgenticPacks Pro</span>
           </h2>
           <p className="text-muted-foreground text-sm max-w-xl mx-auto leading-relaxed">
             Need 3-tier Stripe, multi-tenant teams, LangGraph agents, pgvector RAG, and Hetzner Terraform IaC?
           </p>
           <div className="pt-2">
             <Button asChild size="lg" className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 font-bold shadow-lg">
-              <a href="https://agenticpacks.com/templates/ai-starter-pro" target="_blank" rel="noopener noreferrer" className="inline-flex items-center">
-    Get AI-Starter-Pro ($149) <ArrowRight className="ml-2 h-4 w-4" />
+              <a href="https://agenticpacks.com/agenticpacks-pro" target="_blank" rel="noopener noreferrer" className="inline-flex items-center">
+    Get AgenticPacks Pro ($149) <ArrowRight className="ml-2 h-4 w-4" />
   </a>
             </Button>
           </div>

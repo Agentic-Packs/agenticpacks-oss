@@ -82,7 +82,7 @@ export function ChatInput({
         </form>
 
         <p className="text-center text-[11px] text-muted-foreground">
-          AI-Starter Community connects streaming OpenAI GPT-4o Mini with Auth.js and PostgreSQL.
+          AgenticPacks OSS connects streaming OpenAI GPT-4o Mini with Auth.js and PostgreSQL.
         </p>
       </div>
     </div>

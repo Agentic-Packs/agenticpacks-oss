@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("🌱 Seeding AI-Starter Community database...");
+  console.log("🌱 Seeding AgenticPacks OSS database...");
 
   const passwordHash = await bcrypt.hash("password123", 10);
 
@@ -38,7 +38,7 @@ async function main() {
     const conv = await prisma.conversation.create({
       data: {
         userId: user.id,
-        title: "Welcome to AI-Starter",
+        title: "Welcome to AgenticPacks OSS",
         messages: {
           create: [
             {
@@ -48,7 +48,7 @@ async function main() {
             {
               role: "assistant",
               content:
-                "Welcome to **AI-Starter Community**! You have a production-ready Next.js 15 App Router foundation with Auth.js v5 authentication, PostgreSQL + Prisma database persistence, and OpenAI streaming chat. You can build AI chatbots, content generators, personal writing tools, and more!",
+                "Welcome to **AgenticPacks OSS**! You have a production-ready Next.js 15 App Router foundation with Auth.js v5 authentication, PostgreSQL + Prisma database persistence, and OpenAI streaming chat. You can build AI chatbots, content generators, personal writing tools, and more!",
               promptTokens: 15,
               completionTokens: 48,
             },

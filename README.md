@@ -1,15 +1,15 @@
-# 🚀 AI-Starter Community Edition
+# AgenticPacks OSS
 
 > ⭐ If this self-hosted Docker + Auth.js configuration saved you a weekend of debugging, please star the repository (it helps other devs discover it!)
 
-> **The 100% Free, Open-Source Next.js 15 AI Starter Kit** — Built for speed, developer delight, and zero architectural bloat.
+> **The 100% Free, Open-Source Next.js 15 AI SaaS boilerplate.** MIT. Built for speed, developer delight, and zero architectural bloat.
 
 <p align="center">
-  <a href="https://demo.ai-saas-starter.agenticpacks.com">🖥️ Live Interactive Demo</a>
+  <a href="https://demo.agenticpacks.com">🖥️ Live Interactive Demo</a>
   &nbsp;•&nbsp;
-  <a href="https://agenticpacks.com/templates/ai-starter-pro">💎 Upgrade to Pro ($149)</a>
+  <a href="https://agenticpacks.com/agenticpacks-pro">Get AgenticPacks Pro ($149)</a>
   &nbsp;•&nbsp;
-  <a href="https://github.com/Agentic-Packs/ai-starter-community/stargazers">⭐️ Star on GitHub</a>
+  <a href="https://github.com/Agentic-Packs/agenticpacks-oss/stargazers">⭐️ Star on GitHub</a>
 </p>
 
 <p align="center">
@@ -26,12 +26,12 @@ A modern, production-grade foundation for building AI web applications, indie ha
 
 ---
 
-## 💎 Community Edition vs. AI-Starter-Pro
+## AgenticPacks OSS vs AgenticPacks Pro
 
-**Community Edition is 100% free under the MIT License** — for prototypes, weekend hacks, and MVP testing.  
-**[AI-Starter-Pro ($149)](https://agenticpacks.com/templates/ai-starter-pro)** is for commercial founders who need multi-tenant teams, 3-tier Stripe billing, pgvector RAG, multi-agent workflows, and automated self-hosted production deployment.
+**AgenticPacks OSS is 100% free under the MIT License**, for prototypes, weekend hacks, and MVP testing.  
+**[AgenticPacks Pro ($149)](https://agenticpacks.com/agenticpacks-pro)** is for commercial founders who need multi-tenant teams, 3-tier Stripe billing, pgvector RAG, multi-agent workflows, and automated self-hosted production deployment.
 
-| Feature / Architecture | 🆓 Community Edition (MIT) | 💎 AI-Starter-Pro ($149) |
+| Feature / Architecture | AgenticPacks OSS (MIT) | AgenticPacks Pro ($149) |
 | :--- | :--- | :--- |
 | **Ideal For** | Personal MVPs, Prototypes, Hackathons | **Commercial AI Startups, Micro-SaaS Founders** |
 | **Framework & UI** | Next.js 15 (App Router) + React 19 + shadcn/ui | Next.js 15 (App Router) + React 19 + shadcn/ui |
@@ -52,8 +52,8 @@ A modern, production-grade foundation for building AI web applications, indie ha
 ---
 
 > ### 🚀 Building a commercial AI SaaS?
-> Skip weeks of infrastructure boilerplate. **AI-Starter-Pro ($149)** adds 3-tier Stripe billing, team workspaces, vector search (RAG), autonomous multi-agent pipelines, and automated self-hosted production deployment.  
-> 👉 **[Explore AI-Starter-Pro →](https://agenticpacks.com/templates/ai-starter-pro)** • *[Test Live Demo ↗](https://demo.ai-saas-starter.agenticpacks.com)*
+> Skip weeks of infrastructure boilerplate. **AgenticPacks Pro ($149)** adds 3-tier Stripe billing, team workspaces, vector search (RAG), autonomous multi-agent pipelines, and automated self-hosted production deployment.  
+> **[Get AgenticPacks Pro for $149](https://agenticpacks.com/agenticpacks-pro)** • *[Test the Live Production Demo](https://demo.agenticpacks.com)*
 
 ---
 
@@ -64,8 +64,8 @@ Runs PostgreSQL and Next.js with **live hot-reloading (HMR)** inside Docker:
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/Agentic-Packs/ai-starter-community.git
-cd ai-starter-community
+git clone https://github.com/Agentic-Packs/agenticpacks-oss.git
+cd agenticpacks-oss
 
 # 2. Copy environment configuration
 cp .env.example .env
@@ -141,7 +141,7 @@ docker compose up -d --build
 
 ### Folder Structure
 ```
-ai-starter-community/
+agenticpacks-oss/
 ├── prisma/
 │   ├── schema.prisma            # PostgreSQL schema (User + stripeCustomerId, Session, Conversation, Message, UsageLog)
 │   └── seed.ts                  # Demo account seeder (user@demo.com)
@@ -189,13 +189,13 @@ ai-starter-community/
 
 ## 🤖 OpenAI Streaming Model
 
-AI-Starter Community is powered by OpenAI's fast, cost-efficient **GPT-4o-mini**:
+AgenticPacks OSS is powered by OpenAI's fast, cost-efficient **GPT-4o-mini**:
 
 1. **Setup**: Provide your OpenAI key in `.env`:
    ```env
    OPENAI_API_KEY="sk-..."
    ```
-2. **Without a key**: The app still boots, but `POST /api/chat` returns `400` until `OPENAI_API_KEY` is set. There is no mock stream in Community Edition.
+2. **Without a key**: The app still boots, but `POST /api/chat` returns `400` until `OPENAI_API_KEY` is set. There is no mock stream in AgenticPacks OSS.
 
 ---
 
@@ -208,7 +208,7 @@ Checkout creates the $19/month Pro Price via `price_data` — you do not need a 
 ```env
 STRIPE_SECRET_KEY="sk_test_..."
 STRIPE_WEBHOOK_SECRET="whsec_..."
-STRIPE_APP_ID="ai-starter-community"
+STRIPE_APP_ID="agenticpacks-oss"
 ```
 
 `STRIPE_APP_ID` is a stable instance name (not a hostname). Checkout copies it onto session and subscription metadata. If this app receives an event with a different `appId`, the webhook returns **200** with `"Meant for another domain."` and does not change the database.
@@ -232,7 +232,7 @@ Listen for these events:
 
 The app boots without Stripe keys; `/api/stripe/checkout` and `/api/stripe/portal` return 400 until `STRIPE_SECRET_KEY` is set.
 
-The **$149** AI-Starter-Pro price is the commercial **template** license, not an in-app plan.
+The **$149** AgenticPacks Pro price is the commercial **template** license, not an in-app plan.
 
 ---
 
@@ -248,7 +248,7 @@ The **$149** AI-Starter-Pro price is the commercial **template** license, not an
 | `AUTH_GOOGLE_SECRET` | *Optional* | `your-google-client-secret` | Google OAuth client secret |
 | `STRIPE_SECRET_KEY` | *Optional* | `sk_test_...` | Stripe secret. App boots without it; Checkout returns 400 until set. |
 | `STRIPE_WEBHOOK_SECRET` | *Optional* | `whsec_...` | Stripe webhook signing secret (`/api/webhooks/stripe` or `/api/stripe/webhook`) |
-| `STRIPE_APP_ID` | *Optional* | `ai-starter-community` | Instance id in Checkout/subscription metadata. Foreign events are ignored with HTTP 200. |
+| `STRIPE_APP_ID` | *Optional* | `agenticpacks-oss` | Instance id in Checkout/subscription metadata. Foreign events are ignored with HTTP 200. |
 | `LOG_LEVEL` | *Optional* | `info` | Pino log level |
 | `PORT` | *Optional* | `3000` | Application HTTP port |
 
@@ -278,5 +278,5 @@ This project is open-source software licensed under the **[MIT License](LICENSE)
 ## 🚀 Ready to Ship to Production?
 
 * **Star this repository** if this starter saved you engineering hours!
-* **Building a commercial AI startup?** Check out **[AI-Starter-Pro](https://agenticpacks.com/templates/ai-starter-pro)** to get team workspaces, 3-tier Stripe billing, pgvector RAG, and automated production deployment out of the box.
-* 👉 **[View Live Production Demo ↗](https://demo.ai-saas-starter.agenticpacks.com)**
+* **Building a commercial AI startup?** Check out **[AgenticPacks Pro](https://agenticpacks.com/agenticpacks-pro)** to get team workspaces, 3-tier Stripe billing, pgvector RAG, and automated production deployment out of the box.
+* **[Test the Live Production Demo](https://demo.agenticpacks.com)**

@@ -360,7 +360,7 @@ function BillingContent() {
         <CardHeader className="p-6 pb-3">
           <CardTitle className="text-base font-bold">Need the full commercial kit?</CardTitle>
           <CardDescription className="text-xs">
-            In-app Pro is $19/mo for your users. AI-Starter-Pro is the $149 one-time source license.
+            In-app Pro is $19/mo for your users. AgenticPacks Pro is the $149 one-time source license.
           </CardDescription>
         </CardHeader>
         <CardContent className="p-6 pt-0 text-xs text-muted-foreground space-y-2">
@@ -368,8 +368,8 @@ function BillingContent() {
             Pro source adds LangGraph agents, pgvector RAG, team workspaces, 3-tier Stripe, Redis, and Terraform.
           </p>
           <Button asChild variant="outline" size="sm" className="text-xs gap-1.5 mt-2">
-            <a href="https://agenticpacks.com/templates/ai-starter-pro" target="_blank" rel="noopener noreferrer">
-              Get AI-Starter-Pro ($149)
+            <a href="https://agenticpacks.com/agenticpacks-pro" target="_blank" rel="noopener noreferrer">
+              Get AgenticPacks Pro ($149)
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
           </Button>

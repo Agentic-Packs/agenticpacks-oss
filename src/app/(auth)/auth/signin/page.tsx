@@ -137,7 +137,7 @@ export default function AuthPage() {
           <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-600 text-white shadow-md">
             <Sparkles className="h-5 w-5" />
           </div>
-          <CardTitle className="text-2xl font-bold tracking-tight">AI-Starter Community</CardTitle>
+          <CardTitle className="text-2xl font-bold tracking-tight">AgenticPacks OSS</CardTitle>
           <CardDescription className="text-xs">
             Open-source Next.js 15 AI template. Sign in or create a free account.
           </CardDescription>

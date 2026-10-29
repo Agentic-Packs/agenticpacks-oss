@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Terms of Service | AI-Starter Community",
+  title: "Terms of Service | AgenticPacks OSS",
   description: "Terms of Service and conditions of use.",
 };
 

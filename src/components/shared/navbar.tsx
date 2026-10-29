@@ -20,7 +20,7 @@ export function MarketingNavbar() {
             <Sparkles className="h-5 w-5" />
           </div>
           <span className="font-bold text-lg tracking-tight">
-            AI-Starter<span className="gradient-text font-black">Community</span>
+            AgenticPacks<span className="gradient-text font-black">OSS</span>
           </span>
         </Link>
 

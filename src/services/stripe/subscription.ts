@@ -163,7 +163,7 @@ export async function createCheckoutSession(params: {
           price_data: {
             currency: "usd",
             product_data: {
-              name: `AI-Starter ${plan.name} Plan`,
+              name: `AgenticPacks ${plan.name} Plan`,
               description: plan.description,
             },
             unit_amount: plan.priceMonthly * 100,
@@ -234,7 +234,7 @@ async function ensurePortalConfiguration(stripe: Stripe): Promise<string | undef
 
   const created = await stripe.billingPortal.configurations.create({
     business_profile: {
-      headline: "Manage your AI-Starter subscription",
+      headline: "Manage your AgenticPacks subscription",
     },
     features: {
       invoice_history: { enabled: true },
