@@ -13,9 +13,9 @@ import {
   Check,
   CheckCircle2,
   ExternalLink,
-  Sparkles,
-  Zap,
+  Loader2,
 } from "lucide-react";
+import Counter from "@/components/react-bits/Counter";
 
 function apiErrorMessage(json: unknown, fallback: string): string {
   if (typeof json !== "object" || json === null || !("error" in json)) return fallback;
@@ -197,13 +197,13 @@ function BillingContent() {
           <div className="flex flex-col sm:flex-row gap-2">
             {plan === "free" && (
               <Button
-                className="text-xs font-bold bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500"
+                className="text-xs"
                 disabled={checkoutLoading}
                 onClick={() => void handleCheckout()}
               >
                 {checkoutLoading ? (
                   <>
-                    <Sparkles className="h-3.5 w-3.5 animate-spin mr-1.5" />
+                    <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
                     Redirecting…
                   </>
                 ) : (
@@ -221,7 +221,7 @@ function BillingContent() {
                 disabled={portalLoading}
                 onClick={() => void handlePortal("portal")}
               >
-                {portalLoading ? <Sparkles className="h-3.5 w-3.5 animate-spin" /> : <ExternalLink className="h-3.5 w-3.5" />}
+                {portalLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ExternalLink className="h-3.5 w-3.5" />}
                 Manage subscription
               </Button>
             )}
@@ -242,24 +242,18 @@ function BillingContent() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Zap className="h-4 w-4 text-amber-500 fill-amber-500" />
-              Available credits
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Available credits</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold font-mono">
-              {status === "loading" ? "..." : credits.toLocaleString()}
+            <div className="text-2xl font-semibold font-mono">
+              {status === "loading" || loading ? "..." : <Counter value={credits} />}
             </div>
             <p className="text-xs text-muted-foreground mt-1 capitalize">{planLabel}</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-violet-500" />
-              Total tokens used
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Total tokens used</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold font-mono">{loading ? "..." : totalTokens.toLocaleString()}</div>
@@ -275,16 +269,12 @@ function BillingContent() {
             <Card
               key={item.id}
               className={`relative flex flex-col justify-between ${
-                isCurrent
-                  ? "border-2 border-emerald-500/50 shadow-lg shadow-emerald-500/5"
-                  : item.popular
-                    ? "border border-primary/40 bg-gradient-to-b from-primary/5 via-card to-card"
-                    : "border-border/80"
+                isCurrent || item.popular ? "border-primary" : "border-border"
               }`}
             >
               {isCurrent && (
                 <div className="absolute -top-3 left-6">
-                  <Badge className="bg-emerald-600 text-white font-bold text-xs px-3 py-1">Current plan</Badge>
+                  <Badge variant="outline" className="font-mono text-xs">Current plan</Badge>
                 </div>
               )}
               {!isCurrent && item.popular && (
@@ -296,11 +286,10 @@ function BillingContent() {
                 <CardTitle className="text-xl font-bold">{item.name}</CardTitle>
                 <CardDescription className="text-xs">{item.description}</CardDescription>
                 <div className="mt-4 flex items-baseline gap-1.5">
-                  <span className="text-4xl font-black font-mono">${item.priceMonthly}</span>
+                  <span className="font-mono text-4xl font-semibold">${item.priceMonthly}</span>
                   <span className="text-xs text-muted-foreground">/ month</span>
                 </div>
-                <div className="mt-3 text-xs font-semibold text-primary flex items-center gap-1.5">
-                  <Zap className="h-3.5 w-3.5 fill-primary" />
+                <div className="mt-3 font-mono text-xs text-primary">
                   {item.credits.toLocaleString()} credits
                   {item.id === "pro" ? " / billing cycle" : " to start"}
                 </div>
@@ -309,7 +298,7 @@ function BillingContent() {
                 <ul className="space-y-2 text-xs border-t border-border/50 pt-4">
                   {item.features.map((feature) => (
                     <li key={feature} className="flex items-start gap-2">
-                      <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                      <Check className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
                       <span>{feature}</span>
                     </li>
                   ))}
@@ -325,7 +314,7 @@ function BillingContent() {
                   >
                     {isCurrent ? (
                       <>
-                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 mr-1.5" />
+                        <CheckCircle2 className="h-3.5 w-3.5 text-primary mr-1.5" />
                         Current plan
                       </>
                     ) : (
@@ -334,13 +323,13 @@ function BillingContent() {
                   </Button>
                 ) : (
                   <Button
-                    className="w-full text-xs font-bold bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500"
+                    className="w-full text-xs"
                     disabled={isCurrent || checkoutLoading || !plan}
                     onClick={() => void handleCheckout()}
                   >
                     {checkoutLoading ? (
                       <>
-                        <Sparkles className="h-3.5 w-3.5 animate-spin mr-1.5" />
+                        <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
                         Redirecting…
                       </>
                     ) : isCurrent ? (

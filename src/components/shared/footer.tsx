@@ -1,32 +1,27 @@
 import React from "react";
 import Link from "next/link";
-import { Sparkles, ExternalLink } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 
 export function MarketingFooter() {
   return (
-    <footer className="border-t border-border/50 bg-background/50 backdrop-blur-md">
+    <footer className="border-t border-border bg-background">
       <div className="container px-4 sm:px-8 py-12 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="space-y-3 md:col-span-1">
-            <Link href="/" className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-tr from-violet-600 to-cyan-400 text-white shadow-sm">
-                <Sparkles className="h-4 w-4" />
-              </div>
-              <span className="font-bold text-base tracking-tight">
-                AgenticPacks<span className="gradient-text font-black">OSS</span>
-              </span>
+          <div className="space-y-3">
+            <Link href="/" className="font-semibold tracking-tight">
+              AgenticPacks<span className="text-primary">OSS</span>
             </Link>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Open-source Next.js 15 AI SaaS starter kit with Auth.js v5, OpenAI streaming chat, PostgreSQL Prisma ORM, and Docker.
+              MIT Next.js 15 starter with Auth.js v5, OpenAI streaming chat, Prisma, and Docker.
             </p>
           </div>
 
           <div>
-            <h4 className="font-semibold text-sm mb-3">Product</h4>
+            <h2 className="font-semibold text-sm mb-3">Product</h2>
             <ul className="space-y-2 text-xs text-muted-foreground">
               <li><Link href="/dashboard/chat" className="hover:text-foreground">AI Chat</Link></li>
               <li><Link href="/dashboard/billing" className="hover:text-foreground">Billing</Link></li>
-              <li><Link href="/pricing" className="hover:text-foreground">Pricing Comparison</Link></li>
+              <li><Link href="/pricing" className="hover:text-foreground">Pricing</Link></li>
               <li>
                 <a
                   href="https://agenticpacks.com/agenticpacks-pro"
@@ -42,7 +37,7 @@ export function MarketingFooter() {
           </div>
 
           <div>
-            <h4 className="font-semibold text-sm mb-3">Resources</h4>
+            <h2 className="font-semibold text-sm mb-3">Resources</h2>
             <ul className="space-y-2 text-xs text-muted-foreground">
               <li><Link href="/dashboard/settings/account" className="hover:text-foreground">Account Settings</Link></li>
               <li><Link href="/privacy" className="hover:text-foreground">Privacy Policy</Link></li>
@@ -51,18 +46,18 @@ export function MarketingFooter() {
           </div>
 
           <div>
-            <h4 className="font-semibold text-sm mb-3">Tech Stack</h4>
-            <ul className="space-y-2 text-xs text-muted-foreground">
-              <li><span>PostgreSQL 16 + Prisma ORM</span></li>
-              <li><span>Next.js 15 App Router &amp; React 19</span></li>
-              <li><span>Auth.js v5 (Credentials &amp; OAuth)</span></li>
-              <li><span>Vercel AI SDK (OpenAI)</span></li>
+            <h2 className="font-semibold text-sm mb-3">Tech Stack</h2>
+            <ul className="space-y-2 text-xs text-muted-foreground font-mono">
+              <li>PostgreSQL 16 + Prisma</li>
+              <li>Next.js 15 + React 19</li>
+              <li>Auth.js v5</li>
+              <li>AI SDK 7</li>
             </ul>
           </div>
         </div>
 
-        <div className="mt-12 pt-6 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-          <p>© {new Date().getFullYear()} AgenticPacks OSS. Open source under MIT License.</p>
+        <div className="mt-12 pt-6 border-t border-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs text-muted-foreground">
+          <p>© {new Date().getFullYear()} AgenticPacks OSS. MIT License.</p>
           <div className="flex items-center gap-4">
             <Link href="/privacy" className="hover:text-foreground">Privacy</Link>
             <Link href="/terms" className="hover:text-foreground">Terms</Link>

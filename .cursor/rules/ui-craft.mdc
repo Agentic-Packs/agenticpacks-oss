@@ -1,0 +1,33 @@
+---
+description: Visual craft for AgenticPacks OSS UI
+globs: "**/*.{tsx,css}"
+alwaysApply: false
+---
+
+# UI craft
+
+One accent, one type voice, sections that do not share a recipe. IBM Plex Sans for UI, IBM Plex Mono for code and metadata. Tokens live in `src/app/globals.css` as Tailwind 3 HSL variables. Dark mode `--primary` is the site mint `#9fd9d4`. Light mode keeps that hue and darkens it so text on the warm paper stays readable. Filled buttons use dark ink (`--primary-foreground`).
+
+Use the shadcn `Button` `default` variant for the single filled action in a view and `outline` or `ghost` for the second. Do not add a `gradient` variant. Headings are `font-semibold`, left-aligned, with an eyebrow in mono only when it adds a fact.
+
+The wordmark is semibold: AgenticPacks, then `OSS` in `text-primary`. Marketing CTAs go to `/dashboard` and `/auth/signin`. The external Pro link stays a one-time $149 license, with `Pro` in the accent. In-app prices stay Free and Pro at $19.
+
+## Banned
+
+```tsx
+// Gradient word, glow, glass, sparkle pill, rainbow button, hover-lift
+<span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-violet-400" />
+<div className="bg-cyan-600/20 blur-[120px] animate-pulse-slow" />
+<div className="glass-panel rounded-2xl hover:-translate-y-1" />
+<div className="rounded-full border border-cyan-500/30"><Sparkles /> Built For Serious Builders</div>
+<button className="bg-gradient-to-r from-cyan-500 via-indigo-600 to-violet-600 shadow-cyan-500/25" />
+```
+
+```tsx
+// Solid button, plain surface, one accent on the border that matters
+<Button>Open dashboard</Button>
+<article className="border border-border bg-card">...</article>
+<span className="text-primary">OSS</span>
+```
+
+Do not put a colored icon on every nav link. Do not repeat the same icon-card grid for a new section. A spec list, a numbered sequence, a table, and a terminal are different structures. Use a second hue only inside a code sample, never as a second brand color. No raw hex in components.

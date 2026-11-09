@@ -1,0 +1,23 @@
+---
+description: Motion limits and the allowed React Bits components
+globs: "**/*.{tsx,css}"
+alwaysApply: false
+---
+
+# Motion
+
+Motion plays once, stays small, and stops when `prefers-reduced-motion: reduce` is set. No infinite pulse, ping, bounce, or shimmer.
+
+Allowed React Bits source, and only here:
+
+- `src/components/react-bits/BlurText.tsx` on the home `h1`
+- `src/components/react-bits/DecryptedText.tsx` on one terminal line
+- `src/components/react-bits/Counter.tsx` on the billing credit figure only
+
+```tsx
+<BlurText text="A Next.js 15 AI SaaS boilerplate you run yourself." animateBy="words" delay={30} />
+<DecryptedText text="docker compose up -d && npm run dev" animateOn="view" sequential />
+<Counter value={credits} />
+```
+
+Do not add Aurora, Particles, Hyperspeed, SplashCursor, ShinyText, GradientText, GlareHover, Center Flow, Agent Activity, or another text effect. Do not install a second motion library. New animation needs a reason a static layout cannot carry. Dashboard, chat, and auth do not import these except the billing counter.

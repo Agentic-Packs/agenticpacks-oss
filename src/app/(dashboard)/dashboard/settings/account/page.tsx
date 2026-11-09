@@ -11,13 +11,11 @@ import {
   Mail,
   Shield,
   Key,
-  CreditCard,
   Zap,
   Calendar,
   Save,
   CheckCircle2,
   Loader2,
-  Sparkles,
   ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -155,19 +153,14 @@ export default function AccountSettingsPage() {
     <div className="space-y-6 max-w-4xl mx-auto">
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-border/60">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-600 text-white shadow-md shadow-indigo-500/20">
-            <User className="h-5 w-5" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
-              Account Settings
-            </h1>
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight text-foreground">
+            Account settings
+          </h1>
             <p className="text-xs text-muted-foreground">
               Manage your personal details, credentials, and active subscription
             </p>
           </div>
-        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
@@ -210,7 +203,7 @@ export default function AccountSettingsPage() {
                       disabled
                       className="h-9 text-xs bg-muted/40 text-muted-foreground cursor-not-allowed"
                     />
-                    <Badge variant="outline" className="h-7 text-[10px] gap-1 px-2 shrink-0 border-emerald-500/30 text-emerald-500">
+                    <Badge variant="outline" className="h-7 text-[10px] gap-1 px-2 shrink-0">
                       <CheckCircle2 className="h-3 w-3" />
                       <span>Verified</span>
                     </Badge>
@@ -220,7 +213,7 @@ export default function AccountSettingsPage() {
               <CardFooter className="p-5 pt-0 flex justify-end">
                 <Button
                   type="submit"
-                  variant="gradient"
+                  variant="default"
                   size="sm"
                   disabled={savingProfile || nameInput === profile.name}
                   className="text-xs gap-1.5"
@@ -323,13 +316,13 @@ export default function AccountSettingsPage() {
         {/* Right 1 Column: Plan Summary & Metadata */}
         <div className="space-y-6">
           {/* Active Plan Card */}
-          <Card className="border border-border/80 shadow-sm bg-gradient-to-b from-card to-muted/20">
+          <Card className="border border-border">
             <CardHeader className="p-5 pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                   Current Tier
                 </CardTitle>
-                <Badge variant="gradient" className="capitalize text-xs font-bold px-2.5">
+                <Badge className="capitalize text-xs px-2.5">
                   {profile.plan} Plan
                 </Badge>
               </div>
@@ -338,7 +331,7 @@ export default function AccountSettingsPage() {
               <div className="p-3 rounded-xl bg-primary/5 border border-primary/10 space-y-1">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground flex items-center gap-1">
-                    <Zap className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
+                    <Zap className="h-3.5 w-3.5 text-primary" />
                     Available Credits
                   </span>
                   <span className="font-mono font-bold text-foreground">

@@ -4,12 +4,10 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Sparkles,
   LayoutDashboard,
   MessageSquare,
   User,
   CreditCard,
-  Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -89,14 +87,9 @@ export function DashboardSidebar({ userRole, userCredits, userPlan, className, o
         <Link
           href="/dashboard"
           onClick={onNavigate}
-          className="flex items-center gap-2.5 group"
+          className="font-semibold tracking-tight"
         >
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-tr from-violet-600 to-indigo-600 text-white shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform">
-            <Sparkles className="h-4 w-4" />
-          </div>
-          <span className="font-bold text-base tracking-tight">
-            AgenticPacks<span className="text-primary font-medium ml-1 text-xs px-1.5 py-0.5 rounded bg-primary/10">OSS</span>
-          </span>
+          AgenticPacks<span className="text-primary">OSS</span>
         </Link>
       </div>
 
@@ -114,16 +107,16 @@ export function DashboardSidebar({ userRole, userCredits, userPlan, className, o
               href={item.href}
               onClick={onNavigate}
               className={cn(
-                "flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium transition-all duration-150 group",
+                "flex items-center justify-between px-3 py-2 text-sm font-medium",
                 isActive
-                  ? "bg-primary text-primary-foreground shadow-sm shadow-primary/25 font-semibold"
+                  ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:bg-accent hover:text-foreground"
               )}
             >
               <div className="flex items-center gap-3">
                 <Icon
                   className={cn(
-                    "h-4 w-4 shrink-0 transition-transform group-hover:scale-110",
+                    "h-4 w-4 shrink-0",
                     isActive ? "text-primary-foreground" : "text-muted-foreground"
                   )}
                 />
@@ -139,12 +132,9 @@ export function DashboardSidebar({ userRole, userCredits, userPlan, className, o
         <Link
           href="/dashboard/billing"
           onClick={onNavigate}
-          className="p-3 rounded-xl border border-border/60 bg-muted/40 flex items-center justify-between text-xs shadow-sm hover:border-primary/40 hover:bg-muted/70 transition-colors"
+          className="p-3 border border-border bg-background flex items-center justify-between text-xs hover:border-primary"
         >
-          <span className="font-medium text-muted-foreground flex items-center gap-2">
-            <Zap className="h-4 w-4 text-amber-500 fill-amber-500" />
-            <span>AI Credits</span>
-          </span>
+          <span className="font-mono text-muted-foreground">Credits</span>
           <span className="font-mono font-bold text-foreground text-sm">
             {credits.toLocaleString()}
           </span>

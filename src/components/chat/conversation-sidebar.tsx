@@ -143,13 +143,13 @@ export function ConversationSidebar({
       {isOpen && (
         <div
           onClick={onToggle}
-          className="absolute inset-0 bg-background/80 backdrop-blur-sm z-40 md:hidden transition-opacity"
+          className="absolute inset-0 bg-background/80 z-40 md:hidden"
         />
       )}
 
       {/* Sidebar / Mobile Floating Drawer */}
       <div
-        className={`absolute inset-y-0 left-0 z-50 flex flex-col border-r border-border/70 bg-card md:bg-muted/10 h-full w-72 md:w-64 lg:w-72 md:static md:z-auto transition-transform md:transition-all duration-300 shadow-2xl md:shadow-none ${
+        className={`absolute inset-y-0 left-0 z-50 flex flex-col border-r border-border bg-card h-full w-72 md:w-64 lg:w-72 md:static md:z-auto transition-transform md:transition-all duration-300 ${
           isOpen
             ? "translate-x-0 md:w-64 lg:w-72"
             : "-translate-x-full md:translate-x-0 md:w-0 md:overflow-hidden md:border-none"
@@ -160,9 +160,9 @@ export function ConversationSidebar({
           <div className="flex items-center gap-2">
             <Button
               onClick={handleCreateNew}
-              variant="gradient"
+              variant="default"
               size="sm"
-              className="flex-1 justify-start gap-2 shadow-sm font-medium text-xs h-8"
+              className="flex-1 justify-start gap-2 text-xs h-8"
             >
               <Plus className="h-4 w-4" />
               <span>New Chat</span>
@@ -244,7 +244,7 @@ export function ConversationSidebar({
                     variant="ghost"
                     onClick={(e) => handleDelete(e, conv.id)}
                     disabled={deletingId === conv.id}
-                    className="h-6 w-6 opacity-0 group-hover:opacity-100 hover:bg-rose-500/10 hover:text-rose-500 transition-opacity shrink-0"
+                    className="h-6 w-6 opacity-0 group-hover:opacity-100 hover:text-destructive shrink-0"
                   >
                     {deletingId === conv.id ? (
                       <Loader2 className="h-3 w-3 animate-spin" />

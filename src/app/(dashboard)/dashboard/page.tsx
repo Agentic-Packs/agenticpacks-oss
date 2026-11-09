@@ -2,7 +2,6 @@ import React from "react";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { MessageSquare, Sparkles, Zap, ArrowRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -36,64 +35,52 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8 py-2">
-      {/* Welcome Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-violet-600 via-indigo-600 to-blue-600 p-8 text-white shadow-lg">
-        <div className="relative z-10 max-w-2xl space-y-3">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold backdrop-blur-md">
-            <Sparkles className="h-3.5 w-3.5 text-amber-300" />
-            <span>AgenticPacks OSS</span>
-          </div>
-          <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
-            Welcome back, {session?.user?.name || "Developer"}
-          </h1>
-          <p className="text-white/80 text-sm sm:text-base leading-relaxed">
-            Your production-ready Next.js 15 AI template is ready. Start a new streaming chat conversation or customize this starter for your own projects.
-          </p>
-          <div className="pt-2 flex flex-col sm:flex-row gap-2">
-            <Button asChild size="lg" className="bg-white text-indigo-700 hover:bg-white/90 font-bold shadow-md">
-              <Link href="/dashboard/chat">
-                Start AI Chat <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-            <Button asChild size="lg" variant="outline" className="border-white/40 bg-white/10 text-white hover:bg-white/20 hover:text-white">
-              <Link href="/dashboard/billing">Manage billing</Link>
-            </Button>
-          </div>
+      <div className="border border-border bg-card p-6 sm:p-8 space-y-4">
+        <p className="font-mono text-xs text-primary">AgenticPacks OSS</p>
+        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">
+          Welcome back, {session?.user?.name || "Developer"}
+        </h1>
+        <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl">
+          Start a streaming chat, or open billing to see the Free and Pro wallets.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Button asChild>
+            <Link href="/dashboard/chat">Open chat</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/dashboard/billing">Manage billing</Link>
+          </Button>
         </div>
       </div>
 
-      {/* Quick Metrics */}
       <div className="grid gap-4 sm:grid-cols-3">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Available Credits</CardTitle>
-            <Zap className="h-4 w-4 text-amber-500" />
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Available credits</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold font-mono">{credits.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground mt-1">Active credit balance</p>
+            <div className="text-2xl font-semibold font-mono">{credits.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground mt-1">Wallet in Postgres</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Conversations</CardTitle>
-            <MessageSquare className="h-4 w-4 text-indigo-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold font-mono">{totalConversations}</div>
-            <p className="text-xs text-muted-foreground mt-1">Total chat sessions saved</p>
+            <div className="text-2xl font-semibold font-mono">{totalConversations}</div>
+            <p className="text-xs text-muted-foreground mt-1">Saved chat sessions</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Tokens Used</CardTitle>
-            <Sparkles className="h-4 w-4 text-violet-500" />
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Tokens processed</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold font-mono">{totalUsageTokens.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground mt-1">Total tokens processed</p>
+            <div className="text-2xl font-semibold font-mono">{totalUsageTokens.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground mt-1">Prompt plus completion</p>
           </CardContent>
         </Card>
       </div>

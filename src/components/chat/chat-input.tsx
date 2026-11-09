@@ -35,7 +35,7 @@ export function ChatInput({
   };
 
   return (
-    <div className="w-full border-t border-border/70 bg-background/80 backdrop-blur-xl p-3 sm:p-4">
+    <div className="w-full border-t border-border bg-background p-3 sm:p-4">
       <div className="max-w-4xl mx-auto space-y-2">
         {hasMessages && (
           <div className="flex items-center justify-end px-1">
@@ -54,7 +54,7 @@ export function ChatInput({
         {/* Input Form */}
         <form
           onSubmit={onSubmit}
-          className="relative flex items-end gap-2 rounded-2xl border border-border bg-card p-2 shadow-sm focus-within:ring-2 focus-within:ring-primary/40 transition-all"
+          className="relative flex items-end gap-2 border border-border bg-card p-2 focus-within:ring-2 focus-within:ring-ring"
         >
           <textarea
             ref={textareaRef}
@@ -72,7 +72,7 @@ export function ChatInput({
               type="button"
               onClick={onStop}
               variant="outline"
-              className="h-10 shrink-0 rounded-xl px-3 gap-1.5 border-destructive/40 text-destructive hover:bg-destructive/10"
+              className="h-10 shrink-0 px-3 gap-1.5 text-destructive"
               aria-label="Stop"
             >
               <Square className="h-4 w-4 fill-current" />
@@ -83,11 +83,11 @@ export function ChatInput({
               type="submit"
               size="icon"
               disabled={!input.trim()}
-              variant="gradient"
-              className="h-10 w-10 shrink-0 rounded-xl shadow-md transition-transform active:scale-95"
+              variant="default"
+              className="h-10 w-10 shrink-0"
               aria-label="Send message"
             >
-              <Send className="h-4 w-4 text-white" />
+              <Send className="h-4 w-4" />
             </Button>
           )}
         </form>

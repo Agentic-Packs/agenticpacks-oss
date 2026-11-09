@@ -1,55 +1,44 @@
 import React from "react";
 import Link from "next/link";
-import { Check, Sparkles, Zap } from "lucide-react";
+import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { PLANS } from "@/lib/plans";
 
 export default function PricingPage() {
   return (
     <div className="py-16 md:py-24 max-w-5xl mx-auto px-4 space-y-20">
-      <section className="space-y-10">
-        <div className="text-center space-y-4">
-          <Badge variant="outline" className="px-3 py-1 text-sm border-primary/30 text-primary">
-            In-app SaaS plans
-          </Badge>
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
-            What your users pay
-          </h1>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Community includes Stripe Checkout and the Customer Portal for a Free plan and one Pro plan at $19/mo (500 credits).
+      <section className="space-y-8">
+        <div className="space-y-3 max-w-2xl">
+          <p className="font-mono text-xs text-primary">In-app plans</p>
+          <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight">Free, or Pro at $19</h1>
+          <p className="text-muted-foreground">
+            Checkout and the customer portal bill a Free plan and one Pro plan. Pro is $19 a month and grants 500 credits each cycle.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 items-stretch">
+        <div className="grid md:grid-cols-2 gap-6 items-stretch">
           {Object.values(PLANS).map((plan) => (
             <Card
               key={plan.id}
-              className={`relative flex flex-col ${plan.popular ? "border-primary/50 shadow-xl bg-gradient-to-b from-primary/5 to-card" : "border-border/80 shadow-sm"}`}
+              className={`flex flex-col ${plan.popular ? "border-primary" : "border-border"}`}
             >
-              {plan.popular && (
-                <div className="absolute -top-3 right-6">
-                  <Badge className="bg-primary text-primary-foreground font-bold">Most popular</Badge>
-                </div>
-              )}
-              <CardHeader className="relative">
-                <CardTitle className="text-2xl font-bold">{plan.name}</CardTitle>
+              <CardHeader>
+                <CardTitle className="text-2xl font-semibold">{plan.name}</CardTitle>
                 <CardDescription>{plan.description}</CardDescription>
                 <div className="pt-4 flex items-baseline gap-1">
-                  <span className="text-4xl font-black">${plan.priceMonthly}</span>
+                  <span className="font-mono text-4xl font-semibold">${plan.priceMonthly}</span>
                   <span className="text-muted-foreground text-sm"> / month</span>
                 </div>
-                <div className="pt-2 text-xs font-semibold text-primary flex items-center gap-1">
-                  <Zap className="h-3.5 w-3.5 fill-primary" />
+                <p className="pt-2 font-mono text-xs text-primary">
                   {plan.credits.toLocaleString()} credits{plan.id === "pro" ? " / cycle" : " to start"}
-                </div>
+                </p>
               </CardHeader>
-              <CardContent className="flex-1 space-y-3">
+              <CardContent className="flex-1">
                 <ul className="space-y-2.5 text-sm">
                   {plan.features.map((feature) => (
                     <li key={feature} className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-emerald-500 shrink-0" />
+                      <Check className="h-4 w-4 text-primary shrink-0" />
                       {feature}
                     </li>
                   ))}
@@ -65,47 +54,40 @@ export default function PricingPage() {
         </div>
       </section>
 
-      <section className="space-y-10">
-        <div className="text-center space-y-4">
-          <Badge variant="outline" className="px-3 py-1 text-sm border-primary/30 text-primary">
-            Template license
-          </Badge>
-          <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
-            What you pay for the source
-          </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            AgenticPacks OSS is MIT. AgenticPacks Pro is the $149 commercial kit with agents, RAG, and teams.
+      <section className="space-y-8">
+        <div className="space-y-3 max-w-2xl">
+          <p className="font-mono text-xs text-primary">Source license</p>
+          <h2 className="text-3xl font-semibold tracking-tight">OSS is MIT. Pro is $149.</h2>
+          <p className="text-muted-foreground">
+            AgenticPacks Pro is the commercial kit: agents, RAG, and teams. It is not an in-app plan.
           </p>
         </div>
 
-        <Card className="flex flex-col border-primary/50 shadow-xl relative bg-gradient-to-b from-primary/5 to-card max-w-xl mx-auto">
-          <div className="absolute -top-3 right-6">
-            <Badge className="bg-primary text-primary-foreground font-bold shadow-md">COMMERCIAL</Badge>
-          </div>
+        <Card className="flex flex-col border-primary max-w-xl">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold flex items-center gap-2">
-              AgenticPacks Pro <Sparkles className="h-5 w-5 text-amber-500 fill-amber-500" />
+            <CardTitle className="text-2xl font-semibold">
+              AgenticPacks <span className="text-primary">Pro</span>
             </CardTitle>
-            <CardDescription>For founders shipping a full AI SaaS.</CardDescription>
+            <CardDescription>Source license for the commercial kit.</CardDescription>
             <div className="pt-4">
-              <span className="text-4xl font-black">$149</span>
+              <span className="font-mono text-4xl font-semibold">$149</span>
               <span className="text-muted-foreground text-sm"> / one-time license</span>
             </div>
           </CardHeader>
-          <CardContent className="flex-1 space-y-3">
+          <CardContent className="flex-1">
             <ul className="space-y-2.5 text-sm">
-              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Everything in Community, plus:</li>
+              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Everything in this repo, plus:</li>
               <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> 3-tier Stripe, portal upgrades, team credit pools</li>
-              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Multi-tenant teams &amp; JWT invites</li>
-              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> LangGraph autonomous workflows</li>
-              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> pgvector RAG &amp; knowledge base</li>
+              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Multi-tenant teams and JWT invites</li>
+              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> LangGraph workflows</li>
+              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> pgvector RAG</li>
               <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Redis, Prometheus, Terraform / Caddy</li>
             </ul>
           </CardContent>
           <CardFooter>
-            <Button asChild className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 font-bold">
+            <Button asChild className="w-full">
               <a href="https://agenticpacks.com/agenticpacks-pro" target="_blank" rel="noopener noreferrer">
-                Explore Pro Edition
+                Get AgenticPacks Pro ($149)
               </a>
             </Button>
           </CardFooter>

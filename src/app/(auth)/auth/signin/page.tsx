@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Sparkles, Mail, Lock, User, ArrowRight, UserPlus } from "lucide-react";
+import { Mail, Lock, ArrowRight, UserPlus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function AuthPage() {
@@ -131,28 +131,21 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4 bg-muted/30">
-      <Card className="w-full max-w-md shadow-xl border-border/70">
-        <CardHeader className="text-center space-y-2 pb-4">
-          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-600 text-white shadow-md">
-            <Sparkles className="h-5 w-5" />
-          </div>
-          <CardTitle className="text-2xl font-bold tracking-tight">AgenticPacks OSS</CardTitle>
+    <div className="flex min-h-screen items-center justify-center p-4 bg-background">
+      <Card className="w-full max-w-md border-border">
+        <CardHeader className="space-y-2 pb-4">
+          <CardTitle className="text-2xl font-semibold tracking-tight">
+            AgenticPacks<span className="text-primary">OSS</span>
+          </CardTitle>
           <CardDescription className="text-xs">
-            Open-source Next.js 15 AI template. Sign in or create a free account.
+            Sign in, or create an account. The demo user is seeded as user@demo.com.
           </CardDescription>
         </CardHeader>
 
         <CardContent className="space-y-4">
           {/* Quick Demo Login */}
-          <div className="p-3 rounded-xl border border-primary/20 bg-primary/5 space-y-1.5">
-            <div className="flex items-center justify-between text-xs font-semibold text-primary">
-              <span className="flex items-center gap-1.5">
-                <User className="h-3.5 w-3.5" />
-                1-Click Instant Demo
-              </span>
-              <span className="text-[10px] text-muted-foreground font-normal">No setup needed</span>
-            </div>
+          <div className="border border-border p-3 space-y-2">
+            <p className="font-mono text-xs text-primary">Demo account</p>
             <Button
               type="button"
               variant="outline"
@@ -209,7 +202,7 @@ export default function AuthPage() {
                 </div>
 
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Signing in..." : "Sign In"}
+                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sign In"}
                 </Button>
               </form>
             </TabsContent>
@@ -267,7 +260,7 @@ export default function AuthPage() {
                 </div>
 
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Creating Account..." : "Create Free Account"}
+                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create Free Account"}
                 </Button>
               </form>
             </TabsContent>

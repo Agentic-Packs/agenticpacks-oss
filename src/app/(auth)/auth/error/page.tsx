@@ -13,12 +13,10 @@ export default async function AuthErrorPage({
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-background">
-      <div className="max-w-md w-full text-center space-y-6 p-8 rounded-2xl border border-destructive/30 bg-card shadow-xl">
-        <div className="h-16 w-16 mx-auto rounded-2xl bg-destructive/10 text-destructive flex items-center justify-center ring-8 ring-destructive/5">
-          <AlertTriangle className="h-8 w-8" />
-        </div>
+      <div className="max-w-md w-full space-y-6 border border-border bg-card p-8">
+        <AlertTriangle className="h-6 w-6 text-destructive" />
         <div className="space-y-2">
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Authentication Error</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Authentication error</h1>
           <p className="text-xs text-destructive font-mono bg-destructive/10 p-2 rounded-lg break-all">
             {error}
           </p>

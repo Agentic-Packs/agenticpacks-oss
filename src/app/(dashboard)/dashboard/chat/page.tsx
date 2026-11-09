@@ -8,7 +8,6 @@ import { ChatMessageItem } from "@/components/chat/chat-message";
 import { ChatInput } from "@/components/chat/chat-input";
 import { ConversationSidebar } from "@/components/chat/conversation-sidebar";
 import {
-  Sparkles,
   MessageSquare,
   PanelLeftClose,
   PanelLeft,
@@ -314,7 +313,7 @@ function ChatContent() {
                     className="cursor-pointer gap-2 py-2"
                   >
                     {copied ? (
-                      <Check className="h-3.5 w-3.5 text-emerald-500" />
+                      <Check className="h-3.5 w-3.5 text-primary" />
                     ) : (
                       <Copy className="h-3.5 w-3.5" />
                     )}
@@ -324,10 +323,7 @@ function ChatContent() {
               </DropdownMenu>
             )}
 
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>AI Connected</span>
-            </div>
+            <div className="font-mono text-xs text-muted-foreground">gpt-5-mini</div>
           </div>
         </div>
 
@@ -339,20 +335,15 @@ function ChatContent() {
               <span className="text-xs">Loading conversation history...</span>
             </div>
           ) : messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full min-h-[300px] text-center max-w-md mx-auto space-y-4">
-              <div className="p-4 rounded-2xl bg-gradient-to-tr from-violet-600/10 to-cyan-400/10 text-primary ring-8 ring-primary/5">
-                <Sparkles className="h-8 w-8" />
-              </div>
+            <div className="flex flex-col justify-center h-full min-h-[300px] max-w-md space-y-4">
               <div className="space-y-1">
-                <h2 className="text-base font-bold text-foreground">
-                  How can I assist you today?
+                <p className="font-mono text-xs text-primary">chat</p>
+                <h2 className="text-base font-semibold text-foreground">
+                  Ask a question. The reply streams from GPT-5 Mini.
                 </h2>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Ask any question, draft code, or explore ideas with streaming OpenAI GPT-5 Mini.
-                </p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                 <button
                   type="button"
                   onClick={() => {
@@ -360,9 +351,9 @@ function ChatContent() {
                       "Summarize the key benefits of Auth.js v5 with PostgreSQL in a Next.js 15 app."
                     );
                   }}
-                  className="p-2.5 rounded-xl border border-border/60 bg-muted/20 hover:bg-muted/40 text-left text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  className="p-2.5 border border-border bg-card text-left text-xs text-muted-foreground hover:text-foreground"
                 >
-                  💡 Explain Auth.js v5 + Prisma
+                  Auth.js v5 and Prisma
                 </button>
                 <button
                   type="button"
@@ -371,9 +362,9 @@ function ChatContent() {
                       "Explain the architecture of Next.js 15 App Router streaming chat with Vercel AI SDK."
                     );
                   }}
-                  className="p-2.5 rounded-xl border border-border/60 bg-muted/20 hover:bg-muted/40 text-left text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  className="p-2.5 border border-border bg-card text-left text-xs text-muted-foreground hover:text-foreground"
                 >
-                  ⚡ Next.js 15 Streaming Chat
+                  Next.js 15 streaming chat
                 </button>
               </div>
             </div>
@@ -388,14 +379,9 @@ function ChatContent() {
           )}
 
           {isLoading && messages[messages.length - 1]?.role === "user" && (
-            <div className="flex gap-3 py-4 px-4 rounded-2xl bg-card border border-border/60 shadow-sm animate-pulse">
-              <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center">
-                <Sparkles className="h-4 w-4 text-primary animate-spin" />
-              </div>
-              <div className="flex-1 space-y-2 py-1">
-                <div className="h-3 bg-muted rounded w-1/4" />
-                <div className="h-3 bg-muted rounded w-3/4" />
-              </div>
+            <div className="flex gap-3 py-4 px-4 border border-border bg-card">
+              <Loader2 className="h-4 w-4 text-primary animate-spin" />
+              <p className="font-mono text-xs text-muted-foreground">Waiting for the first token</p>
             </div>
           )}
 

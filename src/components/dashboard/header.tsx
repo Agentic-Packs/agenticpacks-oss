@@ -51,7 +51,7 @@ export function DashboardHeader({ user }: HeaderProps) {
     : "U";
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border/70 bg-background/80 px-4 sm:px-8 backdrop-blur-xl transition-all">
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background px-4 sm:px-8">
       <div className="flex items-center gap-3">
         {/* Mobile Navigation Drawer Trigger */}
         <MobileNav
@@ -74,11 +74,11 @@ export function DashboardHeader({ user }: HeaderProps) {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="relative h-9 w-9 rounded-full ring-2 ring-primary/20 hover:ring-primary/40 transition-all"
+                  className="relative h-9 w-9 rounded-full"
                 >
                   <Avatar className="h-9 w-9">
                     <AvatarImage src={effectiveImage} alt={effectiveName} />
-                    <AvatarFallback className="bg-gradient-to-tr from-violet-600 to-indigo-600 text-white font-semibold">
+                    <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
                       {initials}
                     </AvatarFallback>
                   </Avatar>
