@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
         conversations: conversations.map((c) => ({
           id: c.id,
           title: c.title,
-          model: "gpt-4o-mini",
+          model: "gpt-5-mini",
           messageCount: c._count.messages,
           lastMessage: c.messages[0] || null,
           createdAt: c.createdAt,

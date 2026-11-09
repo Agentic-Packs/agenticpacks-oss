@@ -263,7 +263,7 @@ function BillingContent() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold font-mono">{loading ? "..." : totalTokens.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground mt-1">Processed by GPT-4o Mini</p>
+            <p className="text-xs text-muted-foreground mt-1">Processed by GPT-5 Mini</p>
           </CardContent>
         </Card>
       </div>

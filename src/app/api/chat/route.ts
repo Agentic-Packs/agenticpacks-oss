@@ -1,8 +1,18 @@
 import { NextResponse } from "next/server";
-import { streamText } from "ai";
+import {
+  convertToModelMessages,
+  createUIMessageStreamResponse,
+  streamText,
+  toUIMessageStream,
+  type UIMessage,
+} from "ai";
 import { getActiveAIModel } from "@/services/ai/models";
 import { withValidation } from "@/lib/validation/api";
-import { chatRequestSchema } from "@/lib/validation/chat.schema";
+import {
+  chatRequestSchema,
+  extractMessageText,
+  type ChatMessage,
+} from "@/lib/validation/chat.schema";
 import { getUserCredits, recordUsageAndDeductCredits } from "@/services/ai/tokens";
 import { db } from "@/lib/db";
 import { logger } from "@/lib/logger";
@@ -12,12 +22,33 @@ function resolveChatMaxTokens(): number {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : 4096;
 }
 
+function toUIMessages(messages: ChatMessage[]): UIMessage[] {
+  return messages.map((message, index) => {
+    const text = extractMessageText(message);
+    const parts =
+      message.parts && message.parts.length > 0
+        ? (message.parts as UIMessage["parts"])
+        : ([{ type: "text", text }] as UIMessage["parts"]);
+
+    return {
+      id: message.id ?? `msg-${index}`,
+      role: message.role,
+      parts,
+      ...(message.metadata !== undefined ? { metadata: message.metadata } : {}),
+    } as UIMessage;
+  });
+}
+
 export const POST = withValidation(
   chatRequestSchema,
   async (req, data, session) => {
     const userId = session!.user!.id;
     const { messages, conversationId: requestedConversationId } = data;
-    const latestUserMessage = [...messages].reverse().find((m) => m.role === "user")?.content || "";
+    const latestUserMessage =
+      [...messages].reverse().find((m) => m.role === "user") || undefined;
+    const latestUserText = latestUserMessage
+      ? extractMessageText(latestUserMessage)
+      : "";
 
     // 1. Resolve Active AI Provider (OpenAI) before charging
     const activeAI = getActiveAIModel();
@@ -42,18 +73,18 @@ export const POST = withValidation(
         const newConv = await db.conversation.create({
           data: {
             userId,
-            title: latestUserMessage.slice(0, 40) || "New Conversation",
+            title: latestUserText.slice(0, 40) || "New Conversation",
           },
         });
         conversationId = newConv.id;
       }
 
-      if (latestUserMessage && conversationId) {
+      if (latestUserText && conversationId) {
         await db.message.create({
           data: {
             conversationId,
             role: "user",
-            content: latestUserMessage,
+            content: latestUserText,
           },
         });
 
@@ -88,53 +119,57 @@ export const POST = withValidation(
       );
     }
 
-    const maxTokens = resolveChatMaxTokens();
+    const maxOutputTokens = resolveChatMaxTokens();
+    const uiMessages = toUIMessages(messages);
 
     // 4. Stream LLM Generation
     try {
+      const modelMessages = await convertToModelMessages(uiMessages);
+
       const result = streamText({
         model: activeAI.model,
-        system: `You are AgenticPacks, a helpful and precise AI assistant.
+        instructions: `You are AgenticPacks, a helpful and precise AI assistant.
 Format your responses using GitHub-flavored Markdown. Provide clear, concise answers.`,
-        messages: messages.map((m) => ({
-          role: m.role as "user" | "assistant" | "system",
-          content: m.content,
-        })),
-        maxTokens,
+        messages: modelMessages,
+        maxOutputTokens,
         abortSignal: req.signal,
-        onFinish: async ({ text, usage }) => {
+        onEnd: async ({ text, totalUsage }) => {
           try {
+            const promptTokens = totalUsage?.inputTokens || 0;
+            const completionTokens = totalUsage?.outputTokens || 0;
+
             if (conversationId && text) {
               await db.message.create({
                 data: {
                   conversationId,
                   role: "assistant",
                   content: text,
-                  promptTokens: usage?.promptTokens || 0,
-                  completionTokens: usage?.completionTokens || 0,
+                  promptTokens,
+                  completionTokens,
                 },
               });
             }
 
-            if (userId && usage) {
+            if (userId && totalUsage) {
               await recordUsageAndDeductCredits({
                 userId,
-                promptTokens: usage.promptTokens || 0,
-                completionTokens: usage.completionTokens || 0,
+                promptTokens,
+                completionTokens,
                 endpoint: "/chat",
               });
             }
           } catch (postErr) {
-            logger.warn({ postErr }, "Failed in onFinish post-processing");
+            logger.warn({ postErr }, "Failed in onEnd post-processing");
           }
         },
       });
 
-      const response = result.toDataStreamResponse();
-      if (conversationId) {
-        response.headers.set("x-conversation-id", conversationId);
-      }
-      return response;
+      return createUIMessageStreamResponse({
+        stream: toUIMessageStream({ stream: result.stream }),
+        headers: conversationId
+          ? { "x-conversation-id": conversationId }
+          : undefined,
+      });
     } catch (err: unknown) {
       logger.error({ err }, "Error initializing AI stream");
       const message =

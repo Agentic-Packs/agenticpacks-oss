@@ -231,7 +231,7 @@ export function ConversationSidebar({
                       <p className="text-xs truncate">{conv.title}</p>
                       <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground mt-0.5">
                         <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 uppercase font-mono">
-                          GPT-4o Mini
+                          GPT-5 Mini
                         </Badge>
                         <span>•</span>
                         <span>{conv.messageCount} msgs</span>

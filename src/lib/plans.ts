@@ -17,7 +17,7 @@ export const PLANS: Record<PlanConfig["id"], PlanConfig> = {
     credits: 100,
     features: [
       "100 starter credits",
-      "GPT-4o Mini streaming chat",
+      "GPT-5 Mini streaming chat",
       "Conversation history",
     ],
   },
@@ -31,7 +31,7 @@ export const PLANS: Record<PlanConfig["id"], PlanConfig> = {
     features: [
       "500 AI credits each billing cycle",
       "Stripe Checkout & Customer Portal",
-      "GPT-4o Mini streaming chat",
+      "GPT-5 Mini streaming chat",
     ],
   },
 };

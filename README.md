@@ -22,7 +22,7 @@
   <a href="https://www.docker.com/"><img src="https://img.shields.io/badge/Docker-Ready-2496ed?logo=docker" alt="Docker" /></a>
 </p>
 
-A modern, production-grade foundation for building AI web applications, indie hackathon projects, and AI wrapper MVPs without wading through enterprise SaaS bloat. Includes **Vercel AI SDK 4** streaming (OpenAI GPT-4o-mini), **Auth.js v5** (Credentials + Google OAuth), **PostgreSQL + Prisma**, **Stripe Checkout + Customer Portal** (Free + Pro $19), and **live credit and token counters**.
+A modern, production-grade foundation for building AI web applications, indie hackathon projects, and AI wrapper MVPs without wading through enterprise SaaS bloat. Includes **Vercel AI SDK 7** streaming (OpenAI GPT-5 Mini), **Auth.js v5** (Credentials + Google OAuth), **PostgreSQL + Prisma**, **Stripe Checkout + Customer Portal** (Free + Pro $19), and **live credit and token counters**.
 
 ---
 
@@ -38,7 +38,7 @@ A modern, production-grade foundation for building AI web applications, indie ha
 | **Styling & Themes** | Tailwind CSS + Dark / Light Mode | Tailwind CSS + Dark / Light Mode |
 | **Authentication** | Auth.js v5 (Credentials + Google OAuth) | Auth.js v5 + Magic Links + **RBAC** |
 | **Database** | PostgreSQL 16 + Prisma ORM | PostgreSQL 16 + Prisma ORM + **`pgvector` Vector DB** |
-| **AI Streaming Chat** | ✅ Vercel AI SDK 4 (OpenAI GPT-4o-mini) | ✅ **Multi-Model Router (OpenAI, Claude 3.7 Sonnet, Gemini 2.0 Flash)** |
+| **AI Streaming Chat** | ✅ Vercel AI SDK 7 (OpenAI GPT-5 Mini) | ✅ **Multi-Model Router (OpenAI, Claude 3.7 Sonnet, Gemini 2.0 Flash)** |
 | **Token Tracking & Margins** | ✅ Live Credit Balance & Total Tokens Counter | ✅ **Token-to-Cost Ledger (map token usage directly to dollar costs)** |
 | **Stripe Billing** | ✅ Free + Pro $19/mo Checkout, webhooks & credit counter | ✅ **3-Tier Subscriptions, Portal Upgrades, Proration & Team Credit Pools** |
 | **Observability** | ✅ Local Pino Structured JSON Logs | ✅ **Admin Dashboard + User Metrics & Telemetry** |
@@ -134,7 +134,7 @@ Postgres is reachable only on the internal Compose network (not published to the
        ▼
 [API Routes (withValidation Zod Schemas)]
        │
-       ├──► [Services: AI Streaming (Vercel AI SDK 4 / OpenAI GPT-4o-mini)]
+       ├──► [Services: AI Streaming (Vercel AI SDK 7 / OpenAI GPT-5 Mini)]
        ├──► [Services: Token Usage Counter & Real-Time Balance Sync]
        ├──► [Services: Stripe Checkout, Customer Portal & webhooks]
        └──► [Services: Auth.js v5 (Google OAuth & Credentials)]
@@ -196,7 +196,7 @@ agenticpacks-oss/
 
 ## 🤖 OpenAI Streaming Model
 
-AgenticPacks OSS is powered by OpenAI's fast, cost-efficient **GPT-4o-mini**:
+AgenticPacks OSS is powered by OpenAI's fast, cost-efficient **GPT-5 Mini**:
 
 1. **Setup**: Provide your OpenAI key in `.env`:
    ```env
@@ -255,7 +255,7 @@ The **$149** AgenticPacks Pro price is the commercial **template** license, not 
 | `DATABASE_URL` | **Yes** | `postgresql://postgres:postgrespassword@localhost:5432/ai_starter_community` | PostgreSQL connection string |
 | `AUTH_URL` | **Yes** | `http://localhost:3000` | Public origin URL for Auth.js callbacks (`NEXTAUTH_URL` also supported) |
 | `AUTH_SECRET` | **Yes** | `random-32-char-string` | JWT session encryption secret (`openssl rand -hex 32`) |
-| `OPENAI_API_KEY` | **Yes (for chat)** | `sk-...` | API key for OpenAI GPT-4o-mini streaming. App boots without it; chat requests fail until it is set. |
+| `OPENAI_API_KEY` | **Yes (for chat)** | `sk-...` | API key for OpenAI GPT-5 Mini streaming. App boots without it; chat requests fail until it is set. |
 | `AUTH_GOOGLE_ID` | *Optional* | `your-google-client-id` | Google OAuth client ID |
 | `AUTH_GOOGLE_SECRET` | *Optional* | `your-google-client-secret` | Google OAuth client secret |
 | `STRIPE_SECRET_KEY` | *Optional* | `sk_test_...` | Stripe secret. App boots without it; Checkout returns 400 until set. |

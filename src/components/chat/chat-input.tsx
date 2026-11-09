@@ -6,7 +6,7 @@ import { Send, RotateCcw, Square } from "lucide-react";
 
 interface ChatInputProps {
   input: string;
-  onInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  onInputChange: (value: string) => void;
   onSubmit: (e: React.FormEvent) => void;
   onStop: () => void;
   isLoading: boolean;
@@ -59,7 +59,7 @@ export function ChatInput({
           <textarea
             ref={textareaRef}
             value={input}
-            onChange={onInputChange}
+            onChange={(e) => onInputChange(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Ask anything or write code... (Press Enter to send)"
             rows={1}
@@ -93,7 +93,7 @@ export function ChatInput({
         </form>
 
         <p className="text-center text-[11px] text-muted-foreground">
-          AgenticPacks OSS connects streaming OpenAI GPT-4o Mini with Auth.js and PostgreSQL.
+          AgenticPacks OSS connects streaming OpenAI GPT-5 Mini with Auth.js and PostgreSQL.
         </p>
       </div>
     </div>

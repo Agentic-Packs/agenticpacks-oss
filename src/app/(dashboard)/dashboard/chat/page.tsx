@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, useRef, Suspense } from "react";
+import React, { useState, useEffect, useRef, useMemo, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useChat } from "ai/react";
+import { useChat } from "@ai-sdk/react";
+import { DefaultChatTransport, type UIMessage } from "ai";
 import { ChatMessageItem } from "@/components/chat/chat-message";
 import { ChatInput } from "@/components/chat/chat-input";
 import { ConversationSidebar } from "@/components/chat/conversation-sidebar";
@@ -25,15 +26,45 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 
+function getMessageText(message: UIMessage): string {
+  return message.parts
+    .filter(
+      (part): part is { type: "text"; text: string } =>
+        part.type === "text" && typeof (part as { text?: unknown }).text === "string"
+    )
+    .map((part) => part.text)
+    .join("");
+}
+
 function ChatContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialId = searchParams.get("id");
   const [activeId, setActiveId] = useState<string | null>(initialId);
-  const selectedModel = "gpt-4o-mini";
+  const selectedModel = "gpt-5-mini";
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const [loadingHistory, setLoadingHistory] = useState<boolean>(false);
   const [sidebarRefreshKey, setSidebarRefreshKey] = useState<number>(0);
+  const [input, setInput] = useState("");
+  const [copied, setCopied] = useState<boolean>(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const hasLoadedInitial = useRef(!initialId);
+  const activeIdRef = useRef<string | null>(activeId);
+  const onConversationHeaderRef = useRef<(id: string) => void>(() => {});
+
+  useEffect(() => {
+    activeIdRef.current = activeId;
+  }, [activeId]);
+
+  useEffect(() => {
+    onConversationHeaderRef.current = (convHeader: string) => {
+      if (convHeader !== activeIdRef.current) {
+        setActiveId(convHeader);
+        router.replace(`/dashboard/chat?id=${convHeader}`);
+        setSidebarRefreshKey((k) => k + 1);
+      }
+    };
+  }, [router]);
 
   // Open sidebar by default only on desktop
   useEffect(() => {
@@ -41,54 +72,34 @@ function ChatContent() {
       setSidebarOpen(true);
     }
   }, []);
-  const [copied, setCopied] = useState<boolean>(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const hasLoadedInitial = useRef(!initialId);
 
-  
+  const transport = useMemo(
+    () =>
+      new DefaultChatTransport({
+        api: "/api/chat",
+        body: () => ({
+          conversationId: activeIdRef.current || undefined,
+        }),
+        fetch: async (inputUrl, init) => {
+          const response = await fetch(inputUrl, init);
+          const convHeader = response.headers.get("X-Conversation-Id");
+          if (convHeader) {
+            onConversationHeaderRef.current(convHeader);
+          }
+          return response;
+        },
+      }),
+    []
+  );
 
-  
-
-  // Handle URL ID syncing, initial load, and browser back/forward buttons
-  useEffect(() => {
-    if (initialId && !hasLoadedInitial.current) {
-      hasLoadedInitial.current = true;
-      loadConversation(initialId);
-    } else if (initialId && initialId !== activeId) {
-      loadConversation(initialId);
-    } else if (!initialId && activeId !== null) {
-      setActiveId(null);
-      setMessages([]);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialId]);
-
-  const {
-    messages,
-    input,
-    handleInputChange,
-    handleSubmit,
-    isLoading,
-    setMessages,
-    setInput,
-    stop,
-  } = useChat({
-    api: "/api/chat",
-    body: {
-      conversationId: activeId || undefined,
-    },
+  const { messages, sendMessage, status, setMessages, stop } = useChat({
+    transport,
     onError: (error) => {
-      toast.error(error.message || "Failed to generate AI response. Please check your OPENAI_API_KEY.");
+      toast.error(
+        error.message || "Failed to generate AI response. Please check your OPENAI_API_KEY."
+      );
     },
-    onResponse: (response) => {
-      const convHeader = response.headers.get("X-Conversation-Id");
-      if (convHeader && convHeader !== activeId) {
-        setActiveId(convHeader);
-        router.replace(`/dashboard/chat?id=${convHeader}`);
-        setSidebarRefreshKey((k) => k + 1);
-      }
-    },
-    onFinish: async (message) => {
+    onFinish: async () => {
       setSidebarRefreshKey((k) => k + 1);
       try {
         const res = await fetch("/api/user/profile");
@@ -98,9 +109,13 @@ function ChatContent() {
             new CustomEvent("credits-updated", { detail: { credits: json.data.credits } })
           );
         }
-      } catch {}
+      } catch {
+        // credit refresh is best-effort
+      }
     },
   });
+
+  const isLoading = status === "submitted" || status === "streaming";
 
   const loadConversation = async (id: string) => {
     if (isLoading) {
@@ -115,12 +130,13 @@ function ChatContent() {
       const data = await res.json();
 
       if (data.success && data.data) {
-        const formatted = data.data.messages.map((m: any) => ({
-          id: m.id,
-          role: m.role,
-          content: m.content,
-          createdAt: new Date(m.createdAt),
-        }));
+        const formatted: UIMessage[] = data.data.messages.map(
+          (m: { id: string; role: string; content: string }) => ({
+            id: m.id,
+            role: m.role as UIMessage["role"],
+            parts: [{ type: "text", text: m.content }],
+          })
+        );
         setMessages(formatted);
       }
     } catch {
@@ -129,6 +145,20 @@ function ChatContent() {
       setLoadingHistory(false);
     }
   };
+
+  // Handle URL ID syncing, initial load, and browser back/forward buttons
+  useEffect(() => {
+    if (initialId && !hasLoadedInitial.current) {
+      hasLoadedInitial.current = true;
+      void loadConversation(initialId);
+    } else if (initialId && initialId !== activeId) {
+      void loadConversation(initialId);
+    } else if (!initialId && activeId !== null) {
+      setActiveId(null);
+      setMessages([]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialId]);
 
   const handleNewChat = () => {
     if (isLoading) {
@@ -139,13 +169,21 @@ function ChatContent() {
     router.replace("/dashboard/chat");
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const text = input.trim();
+    if (!text || isLoading) return;
+    setInput("");
+    void sendMessage({ text });
+  };
+
   // Export functions
   const handleExportMarkdown = () => {
     if (messages.length === 0) return;
     let md = `# Conversation Export\n*Generated on ${new Date().toLocaleString()}*\n\n---\n\n`;
     for (const msg of messages) {
       const sender = msg.role === "user" ? "### 👤 User" : `### 🤖 Assistant (${selectedModel})`;
-      md += `${sender}\n\n${msg.content}\n\n---\n\n`;
+      md += `${sender}\n\n${getMessageText(msg)}\n\n---\n\n`;
     }
     const blob = new Blob([md], { type: "text/markdown" });
     const url = URL.createObjectURL(blob);
@@ -160,7 +198,15 @@ function ChatContent() {
 
   const handleExportJSON = () => {
     if (messages.length === 0) return;
-    const blob = new Blob([JSON.stringify(messages, null, 2)], { type: "application/json" });
+    const payload = messages.map((msg) => ({
+      id: msg.id,
+      role: msg.role,
+      content: getMessageText(msg),
+      parts: msg.parts,
+    }));
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {
+      type: "application/json",
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -176,7 +222,7 @@ function ChatContent() {
     let text = "";
     for (const msg of messages) {
       const sender = msg.role === "user" ? "User" : "Assistant";
-      text += `${sender}:\n${msg.content}\n\n`;
+      text += `${sender}:\n${getMessageText(msg)}\n\n`;
     }
     await navigator.clipboard.writeText(text);
     setCopied(true);
@@ -228,7 +274,7 @@ function ChatContent() {
                   AI Chat
                 </h1>
                 <p className="text-[10px] text-muted-foreground hidden sm:block">
-                  Streaming GPT-4o Mini • PostgreSQL database
+                  Streaming GPT-5 Mini • PostgreSQL database
                 </p>
               </div>
             </div>
@@ -239,22 +285,39 @@ function ChatContent() {
             {messages.length > 0 && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-9 px-2.5 text-xs gap-1.5 rounded-xl border-border">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-9 px-2.5 text-xs gap-1.5 rounded-xl border-border"
+                  >
                     <Download className="h-3.5 w-3.5" />
                     <span className="hidden sm:inline">Export</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-44 text-xs">
-                  <DropdownMenuItem onClick={handleExportMarkdown} className="cursor-pointer gap-2 py-2">
+                  <DropdownMenuItem
+                    onClick={handleExportMarkdown}
+                    className="cursor-pointer gap-2 py-2"
+                  >
                     <Download className="h-3.5 w-3.5 text-primary" />
                     <span>Download Markdown (.md)</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleExportJSON} className="cursor-pointer gap-2 py-2">
+                  <DropdownMenuItem
+                    onClick={handleExportJSON}
+                    className="cursor-pointer gap-2 py-2"
+                  >
                     <Download className="h-3.5 w-3.5 text-muted-foreground" />
                     <span>Download JSON (.json)</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleCopyChat} className="cursor-pointer gap-2 py-2">
-                    {copied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
+                  <DropdownMenuItem
+                    onClick={handleCopyChat}
+                    className="cursor-pointer gap-2 py-2"
+                  >
+                    {copied ? (
+                      <Check className="h-3.5 w-3.5 text-emerald-500" />
+                    ) : (
+                      <Copy className="h-3.5 w-3.5" />
+                    )}
                     <span>Copy to Clipboard</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -285,7 +348,7 @@ function ChatContent() {
                   How can I assist you today?
                 </h2>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Ask any question, draft code, or explore ideas with streaming OpenAI GPT-4o Mini.
+                  Ask any question, draft code, or explore ideas with streaming OpenAI GPT-5 Mini.
                 </p>
               </div>
 
@@ -293,7 +356,9 @@ function ChatContent() {
                 <button
                   type="button"
                   onClick={() => {
-                    setInput("Summarize the key benefits of Auth.js v5 with PostgreSQL in a Next.js 15 app.");
+                    setInput(
+                      "Summarize the key benefits of Auth.js v5 with PostgreSQL in a Next.js 15 app."
+                    );
                   }}
                   className="p-2.5 rounded-xl border border-border/60 bg-muted/20 hover:bg-muted/40 text-left text-xs text-muted-foreground hover:text-foreground transition-colors"
                 >
@@ -302,7 +367,9 @@ function ChatContent() {
                 <button
                   type="button"
                   onClick={() => {
-                    setInput("Explain the architecture of Next.js 15 App Router streaming chat with Vercel AI SDK.");
+                    setInput(
+                      "Explain the architecture of Next.js 15 App Router streaming chat with Vercel AI SDK."
+                    );
                   }}
                   className="p-2.5 rounded-xl border border-border/60 bg-muted/20 hover:bg-muted/40 text-left text-xs text-muted-foreground hover:text-foreground transition-colors"
                 >
@@ -312,11 +379,11 @@ function ChatContent() {
             </div>
           ) : (
             messages.map((msg) => (
-                <ChatMessageItem
-                  key={msg.id}
-                  role={msg.role as "user" | "assistant" | "system"}
-                  content={msg.content}
-                />
+              <ChatMessageItem
+                key={msg.id}
+                role={msg.role as "user" | "assistant" | "system"}
+                content={getMessageText(msg)}
+              />
             ))
           )}
 
@@ -338,7 +405,7 @@ function ChatContent() {
         {/* Input Bar */}
         <ChatInput
           input={input}
-          onInputChange={handleInputChange}
+          onInputChange={setInput}
           onSubmit={handleSubmit}
           onStop={stop}
           isLoading={isLoading}
@@ -352,7 +419,13 @@ function ChatContent() {
 
 export default function ChatPage() {
   return (
-    <Suspense fallback={<div className="flex h-64 items-center justify-center text-xs text-muted-foreground">Loading workspace...</div>}>
+    <Suspense
+      fallback={
+        <div className="flex h-64 items-center justify-center text-xs text-muted-foreground">
+          Loading workspace...
+        </div>
+      }
+    >
       <ChatContent />
     </Suspense>
   );

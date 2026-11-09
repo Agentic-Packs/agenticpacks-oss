@@ -18,7 +18,7 @@ src/
 │   ├── (marketing)/        # Landing page, Pricing, Terms, Privacy
 │   └── api/                # API route handlers with Zod validation
 │       ├── auth/           # NextAuth handlers & register endpoint
-│       ├── chat/           # Vercel AI SDK 4 streaming endpoint
+│       ├── chat/           # Vercel AI SDK 7 streaming endpoint
 │       ├── conversations/  # Conversation history & thread management
 │       ├── stripe/         # Checkout, Customer Portal, webhook alias
 │       ├── webhooks/       # Stripe signed webhook
@@ -78,12 +78,12 @@ export const POST = withValidation(chatRequestSchema, async (req, data, session)
 });
 ```
 
-### 4. Single-Model AI Streaming (OpenAI GPT-4o-mini)
-- Configured via `OPENAI_API_KEY` (uses `gpt-4o-mini`).
+### 4. Single-Model AI Streaming (OpenAI GPT-5 Mini)
+- Configured via `OPENAI_API_KEY` (uses `gpt-5-mini`).
 - Chat requires a valid key: `POST /api/chat` returns `400` when `OPENAI_API_KEY` is missing. There is no mock stream.
 - Chat is fail-closed: `requireAuth: true`, empty wallet → `402`, database unavailable → `503` (never call OpenAI unpaid).
 - Optional `CHAT_MAX_TOKENS` (default `4096`). Stop uses `useChat().stop()` and `abortSignal: req.signal`.
-- Credits: `Math.max(1, Math.ceil(totalTokens / 1000))` per completion; deduct in Postgres with a usage log.
+- Credits: `Math.max(1, Math.ceil(totalTokens / 1000))` per completion; deduct in Postgres with a usage log. Map SDK `inputTokens` / `outputTokens` into app `promptTokens` / `completionTokens`.
 
 ### 5. Real-Time Credit Balance Synchronization
 Credits are the wallet in **Postgres**, not the JWT. Session JWT fields are `id`, `role`, and `plan` (plus default Auth.js user fields). The JWT callback may refresh `plan` / `role` / `name` / `image` from the database when they change — never the credit balance.

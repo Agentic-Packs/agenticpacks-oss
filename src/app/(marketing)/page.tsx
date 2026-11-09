@@ -93,7 +93,7 @@ export default function LandingPage() {
                     </span>
                   </div>
                   <Badge variant="secondary" className="text-[10px]">
-                    GPT-4o Mini
+                    GPT-5 Mini
                   </Badge>
                 </div>
 
@@ -220,7 +220,7 @@ export default function LandingPage() {
        ▼
 [API Routes (Server Actions + withValidation Zod Schemas)]
        │
-       ├──► [Services: AI Streaming (Vercel AI SDK 4 / OpenAI GPT-4o-mini)]
+       ├──► [Services: AI Streaming (Vercel AI SDK 7 / OpenAI GPT-5 Mini)]
        ├──► [Services: Token Usage Counter & Real-Time Balance Sync]
        └──► [Services: Auth.js v5 (Google OAuth & Credentials)]
        │
