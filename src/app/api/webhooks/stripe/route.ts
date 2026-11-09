@@ -24,6 +24,9 @@ export async function POST(req: NextRequest) {
     if (!result.success) {
       return NextResponse.json({ error: result.error.message }, { status: 500 });
     }
+    if (result.data.duplicate) {
+      return NextResponse.json({ received: true, duplicate: true });
+    }
     return NextResponse.json({
       received: true,
       processed: result.data.processed,

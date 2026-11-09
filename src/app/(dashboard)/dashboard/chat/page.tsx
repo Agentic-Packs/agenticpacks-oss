@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 import { useChat } from "ai/react";
 import { ChatMessageItem } from "@/components/chat/chat-message";
 import { ChatInput } from "@/components/chat/chat-input";
@@ -30,8 +29,6 @@ function ChatContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialId = searchParams.get("id");
-  const { data: _session, update: updateSession } = useSession();
-
   const [activeId, setActiveId] = useState<string | null>(initialId);
   const selectedModel = "gpt-4o-mini";
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
@@ -102,7 +99,6 @@ function ChatContent() {
           );
         }
       } catch {}
-      updateSession();
     },
   });
 
@@ -124,7 +120,6 @@ function ChatContent() {
           role: m.role,
           content: m.content,
           createdAt: new Date(m.createdAt),
-          annotations: m.model ? [{ model: m.model }] : undefined,
         }));
         setMessages(formatted);
       }
@@ -239,7 +234,7 @@ function ChatContent() {
             </div>
           </div>
 
-          {/* Model Selector & Actions */}
+          {/* Actions */}
           <div className="flex items-center gap-2">
             {messages.length > 0 && (
               <DropdownMenu>
@@ -316,17 +311,13 @@ function ChatContent() {
               </div>
             </div>
           ) : (
-            messages.map((msg) => {
-              const savedModel = (msg.annotations?.[0] as { model?: string })?.model;
-              return (
+            messages.map((msg) => (
                 <ChatMessageItem
                   key={msg.id}
                   role={msg.role as "user" | "assistant" | "system"}
                   content={msg.content}
-                  model={msg.role === "assistant" ? (savedModel || selectedModel) : undefined}
                 />
-              );
-            })
+            ))
           )}
 
           {isLoading && messages[messages.length - 1]?.role === "user" && (
@@ -349,6 +340,7 @@ function ChatContent() {
           input={input}
           onInputChange={handleInputChange}
           onSubmit={handleSubmit}
+          onStop={stop}
           isLoading={isLoading}
           onClear={handleNewChat}
           hasMessages={messages.length > 0}

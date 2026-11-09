@@ -10,11 +10,10 @@ export async function GET(
   try {
     const { id: conversationId } = await params;
     const session = await auth();
-    let userId = session?.user?.id;
+    const userId = session?.user?.id;
 
     if (!userId) {
-      const demoUser = await db.user.findFirst({ where: { email: "user@demo.com" } });
-      userId = demoUser?.id || "demo-user";
+      return NextResponse.json({ success: false, error: { message: "Unauthorized" } }, { status: 401 });
     }
 
     const conversation = await db.conversation.findFirst({
@@ -78,12 +77,7 @@ export async function PATCH(
   try {
     const { id: conversationId } = await params;
     const session = await auth();
-    let userId = session?.user?.id;
-
-    if (!userId) {
-      const demoUser = await db.user.findFirst({ where: { email: "user@demo.com" } });
-      userId = demoUser?.id;
-    }
+    const userId = session?.user?.id;
 
     if (!userId) {
       return NextResponse.json({ success: false, error: { message: "Unauthorized" } }, { status: 401 });
@@ -130,12 +124,7 @@ export async function DELETE(
   try {
     const { id: conversationId } = await params;
     const session = await auth();
-    let userId = session?.user?.id;
-
-    if (!userId) {
-      const demoUser = await db.user.findFirst({ where: { email: "user@demo.com" } });
-      userId = demoUser?.id;
-    }
+    const userId = session?.user?.id;
 
     if (!userId) {
       return NextResponse.json({ success: false, error: { message: "Unauthorized" } }, { status: 401 });

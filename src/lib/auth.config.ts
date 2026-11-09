@@ -5,7 +5,6 @@ export const authConfig: NextAuthConfig = {
   pages: {
     signIn: "/auth/signin",
     error: "/auth/error",
-    verifyRequest: "/auth/verify",
   },
   session: {
     strategy: "jwt",
@@ -34,28 +33,11 @@ export const authConfig: NextAuthConfig = {
 
       return true;
     },
-    async jwt({ token, user, trigger, session }) {
-      if (user) {
-        token.id = user.id;
-        token.role = (user as any).role || "USER";
-        token.plan = (user as any).plan || "free";
-        token.credits = (user as any).credits ?? 100;
-      }
-
-      if (trigger === "update" && session) {
-        if (session.credits !== undefined) token.credits = session.credits;
-        if (session.plan !== undefined) token.plan = session.plan;
-        if (session.role !== undefined) token.role = session.role;
-      }
-
-      return token;
-    },
     async session({ session, token }) {
       if (session.user && token) {
         session.user.id = (token.id as string) || token.sub || "";
         (session.user as any).role = (token.role as string) || "USER";
         (session.user as any).plan = (token.plan as string) || "free";
-        (session.user as any).credits = typeof token.credits === "number" ? token.credits : 100;
       }
       return session;
     },

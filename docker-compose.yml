@@ -1,3 +1,7 @@
+networks:
+  internal:
+    driver: bridge
+
 services:
   postgres:
     image: postgres:16-alpine
@@ -7,15 +11,41 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgrespassword
       POSTGRES_DB: ai_starter_community
-    ports:
-      - "${DB_PORT:-5432}:5432"
+    # Reachable only on the Compose network — not published to the host.
+    expose:
+      - "5432"
     volumes:
       - postgres_prod_data:/var/lib/postgresql/data
+    networks:
+      - internal
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d ai_starter_community"]
       interval: 5s
       timeout: 5s
       retries: 5
+
+  postgres-backup:
+    image: alpine:3.20
+    container_name: ai_starter_community_db_backup
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGHOST: postgres
+      PGPORT: "5432"
+      PGUSER: postgres
+      PGPASSWORD: postgrespassword
+      PGDATABASE: ai_starter_community
+      BACKUP_RETENTION_DAYS: "7"
+      TZ: UTC
+    volumes:
+      - postgres_backup_data:/backups
+      - ./docker/postgres-backup.sh:/usr/local/bin/postgres-backup.sh:ro
+      - ./docker/postgres-backup-entrypoint.sh:/usr/local/bin/postgres-backup-entrypoint.sh:ro
+    networks:
+      - internal
+    entrypoint: ["/bin/sh", "/usr/local/bin/postgres-backup-entrypoint.sh"]
 
   app:
     image: ai-starter-community-app-prod:latest
@@ -37,9 +67,13 @@ services:
       - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
       - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
       - STRIPE_APP_ID=${STRIPE_APP_ID:-agenticpacks-oss}
+      - CHAT_MAX_TOKENS=${CHAT_MAX_TOKENS:-4096}
+    networks:
+      - internal
     depends_on:
       postgres:
         condition: service_healthy
 
 volumes:
   postgres_prod_data:
+  postgres_backup_data:

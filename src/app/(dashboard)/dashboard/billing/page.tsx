@@ -31,8 +31,8 @@ function BillingContent() {
   const handledSuccess = useRef(false);
 
   const plan = session?.user?.plan || (status === "loading" ? null : "free");
-  const credits = typeof session?.user?.credits === "number" ? session.user.credits : 100;
 
+  const [credits, setCredits] = useState(0);
   const [hasStripeCustomer, setHasStripeCustomer] = useState(false);
   const [totalTokens, setTotalTokens] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -59,9 +59,12 @@ function BillingContent() {
             typeof profileJson.data === "object" &&
             profileJson.data !== null
           ) {
-            const data = profileJson.data as { hasStripeCustomer?: boolean };
+            const data = profileJson.data as { hasStripeCustomer?: boolean; credits?: number };
             if (typeof data.hasStripeCustomer === "boolean") {
               setHasStripeCustomer(data.hasStripeCustomer);
+            }
+            if (typeof data.credits === "number") {
+              setCredits(data.credits);
             }
           }
         }

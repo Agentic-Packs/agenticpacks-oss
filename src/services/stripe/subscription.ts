@@ -1,10 +1,15 @@
 import Stripe from "stripe";
+import { Prisma } from "@/generated/prisma";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
 import { Result, success, ErrorFactory } from "@/lib/errors";
 import { PLANS } from "@/lib/plans";
 import { getStripe, isStripeConfigured } from "@/lib/stripe";
+
+function isUniqueConstraintError(error: unknown): boolean {
+  return error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002";
+}
 
 async function resolveUserId(userIdParam: string, userEmail?: string): Promise<string | null> {
   if (userIdParam && userIdParam !== "demo-user") {
@@ -36,6 +41,7 @@ type WebhookHandleResult = {
   processed: boolean;
   type: string;
   ignored?: boolean;
+  duplicate?: boolean;
   reason?: string;
 };
 
@@ -104,8 +110,11 @@ function ignoreWebhook(type: string, reason: string): Result<WebhookHandleResult
   return success({ processed: false, type, ignored: true, reason });
 }
 
-async function setPlanFree(customerId: string): Promise<boolean> {
-  const updated = await db.user.updateMany({
+async function setPlanFree(
+  tx: Prisma.TransactionClient,
+  customerId: string
+): Promise<boolean> {
+  const updated = await tx.user.updateMany({
     where: { stripeCustomerId: customerId },
     data: { plan: "free" },
   });
@@ -319,97 +328,132 @@ export async function handleStripeWebhookEvent(
   event: Stripe.Event
 ): Promise<Result<WebhookHandleResult>> {
   try {
-    logger.info({ type: event.type, id: event.id }, "Processing Stripe webhook");
-
-    const expectedAppId = stripeAppId();
-    if (expectedAppId) {
-      const eventAppId = await resolveEventAppId(event);
-      if (eventAppId && eventAppId !== expectedAppId) {
-        return ignoreWebhook(event.type, FOREIGN_APP_REASON);
-      }
-    }
-
-    switch (event.type) {
-      case "checkout.session.completed": {
-        const session = event.data.object as Stripe.Checkout.Session;
-        const userId = session.metadata?.userId;
-        const customerId = stripeCustomerRef(session.customer);
-
-        if (!userId) {
-          return ignoreWebhook(event.type, "Missing userId metadata.");
-        }
-
-        const user = await db.user.findUnique({
-          where: { id: userId },
-          select: { id: true },
+    return await db.$transaction(
+      async (tx) => {
+        const existing = await tx.stripeEvent.findUnique({
+          where: { id: event.id },
         });
-        if (!user) {
-          return ignoreWebhook(event.type, "User not in this database.");
+        if (existing) {
+          return success({
+            processed: false,
+            type: event.type,
+            ignored: true,
+            duplicate: true,
+            reason: "Duplicate event.",
+          });
         }
 
-        await db.user.update({
-          where: { id: user.id },
+        logger.info({ type: event.type, id: event.id }, "Processing Stripe webhook");
+
+        await tx.stripeEvent.create({
           data: {
-            plan: "pro",
-            ...(customerId ? { stripeCustomerId: customerId } : {}),
-            credits: { increment: PLANS.pro.credits },
+            id: event.id,
+            type: event.type,
           },
         });
-        logger.info({ userId, customerId }, "Pro subscription activated");
-        break;
-      }
 
-      case "invoice.payment_succeeded": {
-        const invoice = event.data.object as Stripe.Invoice;
-        const customerId = stripeCustomerRef(invoice.customer);
-        if (customerId && invoice.billing_reason === "subscription_cycle") {
-          const user = await db.user.findUnique({
-            where: { stripeCustomerId: customerId },
-            select: { id: true },
-          });
-          if (!user) {
-            return ignoreWebhook(event.type, "User not in this database.");
+        const expectedAppId = stripeAppId();
+        if (expectedAppId) {
+          const eventAppId = await resolveEventAppId(event);
+          if (eventAppId && eventAppId !== expectedAppId) {
+            return ignoreWebhook(event.type, FOREIGN_APP_REASON);
           }
-          await db.user.update({
-            where: { id: user.id },
-            data: { credits: { increment: PLANS.pro.credits } },
-          });
-          logger.info({ userId: user.id }, "Monthly Pro credits replenished");
         }
-        break;
-      }
 
-      case "customer.subscription.updated": {
-        const subscription = event.data.object as Stripe.Subscription;
-        if (subscription.status !== "canceled" && !subscription.cancel_at_period_end) {
-          break;
+        switch (event.type) {
+          case "checkout.session.completed": {
+            const session = event.data.object as Stripe.Checkout.Session;
+            const userId = session.metadata?.userId;
+            const customerId = stripeCustomerRef(session.customer);
+
+            if (!userId) {
+              return ignoreWebhook(event.type, "Missing userId metadata.");
+            }
+
+            const user = await tx.user.findUnique({
+              where: { id: userId },
+              select: { id: true },
+            });
+            if (!user) {
+              return ignoreWebhook(event.type, "User not in this database.");
+            }
+
+            await tx.user.update({
+              where: { id: user.id },
+              data: {
+                plan: "pro",
+                ...(customerId ? { stripeCustomerId: customerId } : {}),
+                credits: { increment: PLANS.pro.credits },
+              },
+            });
+            logger.info({ userId, customerId }, "Pro subscription activated");
+            break;
+          }
+
+          case "invoice.payment_succeeded": {
+            const invoice = event.data.object as Stripe.Invoice;
+            const customerId = stripeCustomerRef(invoice.customer);
+            if (customerId && invoice.billing_reason === "subscription_cycle") {
+              const user = await tx.user.findUnique({
+                where: { stripeCustomerId: customerId },
+                select: { id: true },
+              });
+              if (!user) {
+                return ignoreWebhook(event.type, "User not in this database.");
+              }
+              await tx.user.update({
+                where: { id: user.id },
+                data: { credits: { increment: PLANS.pro.credits } },
+              });
+              logger.info({ userId: user.id }, "Monthly Pro credits replenished");
+            }
+            break;
+          }
+
+          case "customer.subscription.updated": {
+            const subscription = event.data.object as Stripe.Subscription;
+            if (subscription.status !== "canceled" && !subscription.cancel_at_period_end) {
+              break;
+            }
+            const customerId = stripeCustomerRef(subscription.customer);
+            if (!customerId) break;
+            if (!(await setPlanFree(tx, customerId))) {
+              return ignoreWebhook(event.type, "User not in this database.");
+            }
+            logger.info({ customerId, status: subscription.status }, "Subscription canceled; plan set to free");
+            break;
+          }
+
+          case "customer.subscription.deleted": {
+            const subscription = event.data.object as Stripe.Subscription;
+            const customerId = stripeCustomerRef(subscription.customer);
+            if (!customerId) break;
+            if (!(await setPlanFree(tx, customerId))) {
+              return ignoreWebhook(event.type, "User not in this database.");
+            }
+            logger.info({ customerId }, "Subscription canceled; plan set to free");
+            break;
+          }
+
+          default:
+            break;
         }
-        const customerId = stripeCustomerRef(subscription.customer);
-        if (!customerId) break;
-        if (!(await setPlanFree(customerId))) {
-          return ignoreWebhook(event.type, "User not in this database.");
-        }
-        logger.info({ customerId, status: subscription.status }, "Subscription canceled; plan set to free");
-        break;
-      }
 
-      case "customer.subscription.deleted": {
-        const subscription = event.data.object as Stripe.Subscription;
-        const customerId = stripeCustomerRef(subscription.customer);
-        if (!customerId) break;
-        if (!(await setPlanFree(customerId))) {
-          return ignoreWebhook(event.type, "User not in this database.");
-        }
-        logger.info({ customerId }, "Subscription canceled; plan set to free");
-        break;
-      }
-
-      default:
-        break;
-    }
-
-    return success({ processed: true, type: event.type });
+        return success({ processed: true, type: event.type });
+      },
+      { timeout: 20000 }
+    );
   } catch (error: unknown) {
+    if (isUniqueConstraintError(error)) {
+      logger.info({ id: event.id, type: event.type }, "Duplicate Stripe webhook ignored");
+      return success({
+        processed: false,
+        type: event.type,
+        ignored: true,
+        duplicate: true,
+        reason: "Duplicate event.",
+      });
+    }
     logger.error({ error, eventType: event.type }, "Stripe webhook handling failed");
     return ErrorFactory.stripe("Failed to process webhook event", error);
   }

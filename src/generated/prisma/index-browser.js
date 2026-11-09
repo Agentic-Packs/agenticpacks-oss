@@ -192,6 +192,12 @@ exports.Prisma.MessageScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.StripeEventScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -215,7 +221,8 @@ exports.Prisma.ModelName = {
   VerificationToken: 'VerificationToken',
   UsageLog: 'UsageLog',
   Conversation: 'Conversation',
-  Message: 'Message'
+  Message: 'Message',
+  StripeEvent: 'StripeEvent'
 };
 
 /**

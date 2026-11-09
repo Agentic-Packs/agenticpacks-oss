@@ -10,11 +10,9 @@ import { cn } from "@/lib/utils";
 interface ChatMessageProps {
   role: "user" | "assistant" | "system";
   content: string;
-  model?: string;
-  timestamp?: string;
 }
 
-export function ChatMessageItem({ role, content, model, timestamp }: ChatMessageProps) {
+export function ChatMessageItem({ role, content }: ChatMessageProps) {
   const [copied, setCopied] = useState(false);
   const isUser = role === "user";
 

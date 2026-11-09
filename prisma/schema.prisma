@@ -98,3 +98,9 @@ model Message {
 
   @@index([conversationId, createdAt])
 }
+
+model StripeEvent {
+  id        String   @id
+  type      String
+  createdAt DateTime @default(now())
+}

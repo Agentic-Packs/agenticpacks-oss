@@ -3,7 +3,6 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
 import {
   Sparkles,
   LayoutDashboard,
@@ -47,17 +46,14 @@ interface SidebarProps {
 
 export function DashboardSidebar({ userRole, userCredits, userPlan, className, onNavigate }: SidebarProps) {
   const pathname = usePathname();
-  const { data: session } = useSession();
 
-  const [credits, setCredits] = React.useState<number>(userCredits ?? session?.user?.credits ?? 100);
+  const [credits, setCredits] = React.useState<number>(userCredits ?? 0);
 
   React.useEffect(() => {
     if (typeof userCredits === "number") {
       setCredits(userCredits);
-    } else if (typeof session?.user?.credits === "number") {
-      setCredits(session.user.credits);
     }
-  }, [userCredits, session?.user?.credits]);
+  }, [userCredits]);
 
   React.useEffect(() => {
     const handleUpdate = (e: Event) => {

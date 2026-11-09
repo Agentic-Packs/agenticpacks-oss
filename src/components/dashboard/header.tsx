@@ -39,12 +39,7 @@ export function DashboardHeader({ user }: HeaderProps) {
   const effectiveImage = user?.image || session?.user?.image || "";
   const effectiveRole = user?.role || session?.user?.role || "USER";
   const effectivePlan = user?.plan || session?.user?.plan || "free";
-  const effectiveCredits =
-    typeof user?.credits === "number"
-      ? user.credits
-      : typeof session?.user?.credits === "number"
-      ? session.user.credits
-      : 100;
+  const effectiveCredits = typeof user?.credits === "number" ? user.credits : 0;
 
   const initials = effectiveName
     ? effectiveName

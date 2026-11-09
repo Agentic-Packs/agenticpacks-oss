@@ -8,13 +8,7 @@ const usageQuerySchema = z.object({});
 export const GET = withValidation(
   usageQuerySchema,
   async (_req, _data, session) => {
-    let targetUserId = session?.user?.id;
-    if (!targetUserId || targetUserId === "demo-user") {
-      const demoUser = await db.user.findFirst({
-        where: { email: session?.user?.email || "user@demo.com" },
-      });
-      if (demoUser) targetUserId = demoUser.id;
-    }
+    const targetUserId = session?.user?.id;
 
     const aggregate = targetUserId
       ? await db.usageLog.aggregate({

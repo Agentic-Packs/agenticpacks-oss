@@ -19,15 +19,16 @@ export default async function DashboardLayout({
         image: session.user.image,
         role: session.user.role,
         plan: session.user.plan,
-        credits: session.user.credits,
+        credits: 0,
       }
     : {
-        id: "demo-user",
-        name: "Demo Developer",
-        email: "demo@example.com",
+        id: "",
+        name: "",
+        email: "",
+        image: null as string | null,
         role: "USER",
         plan: "free",
-        credits: 100,
+        credits: 0,
       };
 
   if (user?.id || user?.email) {
@@ -35,7 +36,7 @@ export default async function DashboardLayout({
       const dbUser = await db.user.findFirst({
         where: {
           OR: [
-            ...(user.id && user.id !== "demo-user" ? [{ id: user.id }] : []),
+            ...(user.id ? [{ id: user.id }] : []),
             ...(user.email ? [{ email: user.email.toLowerCase() }] : []),
           ],
         },

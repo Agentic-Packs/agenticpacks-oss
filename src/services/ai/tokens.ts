@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { logger } from "@/lib/logger";
-import { Result, success, failure } from "@/lib/errors";
+import { Result, success, failure, ErrorFactory } from "@/lib/errors";
 
 export interface RecordUsageParams {
   userId: string;
@@ -13,6 +13,26 @@ function creditsForTokens(totalTokens: number): number {
   return Math.max(1, Math.ceil(totalTokens / 1000));
 }
 
+export async function getUserCredits(
+  userId: string
+): Promise<Result<{ credits: number }>> {
+  try {
+    const user = await db.user.findUnique({
+      where: { id: userId },
+      select: { credits: true },
+    });
+
+    if (!user) {
+      return ErrorFactory.notFound("User");
+    }
+
+    return success({ credits: user.credits });
+  } catch (err: unknown) {
+    logger.error({ err, userId }, "Failed to load credit balance");
+    return failure("Failed to load credit balance", "DATABASE_ERROR");
+  }
+}
+
 export async function recordUsageAndDeductCredits(
   params: RecordUsageParams
 ): Promise<Result<{ remainingCredits: number; creditsDeducted: number }>> {
@@ -21,32 +41,41 @@ export async function recordUsageAndDeductCredits(
     const totalTokens = promptTokens + completionTokens;
     const creditsDeducted = creditsForTokens(totalTokens);
 
-    if (userId === "demo-user") {
-      return success({ remainingCredits: 999, creditsDeducted });
+    const billed = await db.$transaction(async (tx) => {
+      const user = await tx.user.findUnique({
+        where: { id: userId },
+        select: { credits: true },
+      });
+      if (!user) {
+        return null;
+      }
+
+      const remainingCredits = Math.max(0, user.credits - creditsDeducted);
+
+      await tx.user.update({
+        where: { id: userId },
+        data: { credits: remainingCredits },
+      });
+
+      await tx.usageLog.create({
+        data: {
+          userId,
+          promptTokens,
+          completionTokens,
+          totalTokens,
+          endpoint,
+        },
+      });
+
+      return remainingCredits;
+    });
+
+    if (billed === null) {
+      return ErrorFactory.notFound("User");
     }
 
-    const updatedUser = await db.user.update({
-      where: { id: userId },
-      data: {
-        credits: {
-          decrement: creditsDeducted,
-        },
-      },
-      select: { credits: true },
-    });
-
-    await db.usageLog.create({
-      data: {
-        userId,
-        promptTokens,
-        completionTokens,
-        totalTokens,
-        endpoint,
-      },
-    });
-
     return success({
-      remainingCredits: updatedUser.credits,
+      remainingCredits: billed,
       creditsDeducted,
     });
   } catch (err: unknown) {

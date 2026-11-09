@@ -14,7 +14,7 @@ interface MobileNavProps {
 
 export function MobileNav({
   userRole = "USER",
-  userCredits = 100,
+  userCredits = 0,
   userPlan = "free",
 }: MobileNavProps) {
   const [open, setOpen] = useState(false);

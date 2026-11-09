@@ -99,6 +99,11 @@ export default function AccountSettingsPage() {
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (profile.hasPassword && !currentPassword.trim()) {
+      toast.error("Current password is required");
+      return;
+    }
+
     if (newPassword.length < 6) {
       toast.error("New password must be at least 6 characters");
       return;
@@ -295,7 +300,12 @@ export default function AccountSettingsPage() {
                   type="submit"
                   variant="outline"
                   size="sm"
-                  disabled={savingPassword || !newPassword || !confirmPassword}
+                  disabled={
+                    savingPassword ||
+                    !newPassword ||
+                    !confirmPassword ||
+                    (profile.hasPassword && !currentPassword.trim())
+                  }
                   className="text-xs gap-1.5"
                 >
                   {savingPassword ? (

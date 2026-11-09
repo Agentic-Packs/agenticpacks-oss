@@ -12,15 +12,9 @@ export default async function DashboardPage() {
 
   let totalConversations = 0;
   let totalUsageTokens = 0;
-  let credits = session?.user?.credits ?? 100;
+  let credits = 0;
 
-  let targetId = userId;
-  if (!targetId || targetId === "demo-user") {
-    try {
-      const demo = await db.user.findFirst({ where: { email: session?.user?.email || "user@demo.com" } });
-      if (demo) targetId = demo.id;
-    } catch {}
-  }
+  const targetId = userId;
 
   if (targetId) {
     try {

@@ -14,14 +14,12 @@ declare module "next-auth" {
       id: string;
       role: string;
       plan: string;
-      credits: number;
     } & DefaultSession["user"];
   }
 
   interface User {
     role?: string;
     plan?: string;
-    credits?: number;
   }
 }
 
@@ -51,11 +49,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const email = String(credentials.email).toLowerCase().trim();
         const password = String(credentials.password || "");
 
-        // 1. Resilient Instant Demo Sign-In
+        // 1. Instant Demo Sign-In (requires a real User row — never mint a synthetic id)
         if (email === "user@demo.com" && password === "password123") {
-          let user = null;
           try {
-            user = await db.user.findUnique({ where: { email } });
+            let user = await db.user.findUnique({ where: { email } });
             if (!user) {
               user = await db.user.create({
                 data: {
@@ -68,19 +65,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 },
               });
             }
-          } catch {
-            // Database is offline or not yet migrated: provide zero-friction in-memory demo session
-          }
 
-          return {
-            id: user?.id || "demo-user",
-            name: user?.name || "Demo Developer",
-            email: "user@demo.com",
-            image: null,
-            role: user?.role || "USER",
-            plan: user?.plan || "free",
-            credits: user?.credits ?? 100,
-          };
+            return {
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              image: user.image,
+              role: user.role,
+              plan: user.plan,
+            };
+          } catch {
+            return null;
+          }
         }
 
         // 2. Standard user credentials lookup
@@ -96,7 +92,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 image: user.image,
                 role: user.role,
                 plan: user.plan,
-                credits: user.credits,
               };
             }
           }
@@ -115,11 +110,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.id = user.id;
         token.role = user.role || "USER";
         token.plan = user.plan || "free";
-        token.credits = user.credits ?? 100;
       }
 
       if (trigger === "update") {
-        if (session?.credits !== undefined) token.credits = session.credits;
         if (session?.plan !== undefined) token.plan = session.plan;
         if (session?.role !== undefined) token.role = session.role;
         if (session?.name !== undefined) token.name = session.name;
@@ -137,13 +130,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         try {
           const dbUser = await db.user.findFirst({
             where: { OR: userLookup },
-            select: { id: true, role: true, plan: true, credits: true, name: true, image: true },
+            select: { id: true, role: true, plan: true, name: true, image: true },
           });
           if (dbUser) {
             if (token.id !== dbUser.id) token.id = dbUser.id;
             if (token.role !== dbUser.role) token.role = dbUser.role;
             if (token.plan !== dbUser.plan) token.plan = dbUser.plan;
-            if (token.credits !== dbUser.credits) token.credits = dbUser.credits;
             if (dbUser.name && token.name !== dbUser.name) token.name = dbUser.name;
             if (dbUser.image && token.picture !== dbUser.image) token.picture = dbUser.image;
           }
@@ -156,11 +148,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     async session({ session, token }) {
       if (session.user && token) {
-        const userId = (token.id as string) || token.sub || "demo-user";
+        const userId = (token.id as string) || (token.sub as string) || "";
         session.user.id = userId;
         session.user.role = (token.role as string) || "USER";
         session.user.plan = (token.plan as string) || "free";
-        session.user.credits = typeof token.credits === "number" ? token.credits : 100;
       }
       return session;
     },

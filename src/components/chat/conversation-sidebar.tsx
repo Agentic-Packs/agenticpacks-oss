@@ -9,7 +9,6 @@ import {
   Plus,
   Trash2,
   Search,
-  Sparkles,
   Loader2,
   Clock,
   X,

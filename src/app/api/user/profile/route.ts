@@ -13,12 +13,7 @@ const updateProfileSchema = z.object({
 export async function GET() {
   try {
     const session = await auth();
-    let userId = session?.user?.id;
-
-    if (!userId) {
-      const demoUser = await db.user.findFirst({ where: { email: "user@demo.com" } });
-      userId = demoUser?.id;
-    }
+    const userId = session?.user?.id;
 
     if (!userId) {
       return NextResponse.json({ success: false, error: { message: "Unauthorized" } }, { status: 401 });
@@ -73,12 +68,7 @@ export async function GET() {
 export async function PATCH(req: NextRequest) {
   try {
     const session = await auth();
-    let userId = session?.user?.id;
-
-    if (!userId) {
-      const demoUser = await db.user.findFirst({ where: { email: "user@demo.com" } });
-      userId = demoUser?.id;
-    }
+    const userId = session?.user?.id;
 
     if (!userId) {
       return NextResponse.json({ success: false, error: { message: "Unauthorized" } }, { status: 401 });
@@ -111,8 +101,13 @@ export async function PATCH(req: NextRequest) {
     }
 
     if (newPassword) {
-      // If user already has a password, verify currentPassword
-      if (user.passwordHash && currentPassword) {
+      if (user.passwordHash) {
+        if (!currentPassword) {
+          return NextResponse.json(
+            { success: false, error: { message: "Current password is required" } },
+            { status: 400 }
+          );
+        }
         const isValid = await bcrypt.compare(currentPassword, user.passwordHash);
         if (!isValid) {
           return NextResponse.json(

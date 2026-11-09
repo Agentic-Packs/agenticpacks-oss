@@ -6,11 +6,10 @@ import { paginationQuerySchema, createConversationSchema } from "@/lib/validatio
 export async function GET(req: NextRequest) {
   try {
     const session = await auth();
-    let userId = session?.user?.id;
+    const userId = session?.user?.id;
 
     if (!userId) {
-      const demoUser = await db.user.findFirst({ where: { email: "user@demo.com" } });
-      userId = demoUser?.id || "demo-user";
+      return NextResponse.json({ success: false, error: { message: "Unauthorized" } }, { status: 401 });
     }
 
     const { searchParams } = new URL(req.url);
@@ -73,12 +72,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await auth();
-    let userId = session?.user?.id;
-
-    if (!userId) {
-      const demoUser = await db.user.findFirst({ where: { email: "user@demo.com" } });
-      userId = demoUser?.id;
-    }
+    const userId = session?.user?.id;
 
     if (!userId) {
       return NextResponse.json({ success: false, error: { message: "Unauthorized" } }, { status: 401 });
