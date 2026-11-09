@@ -21,3 +21,11 @@ Never throw unhandled errors in service functions; catch, log with `logger`, and
 ## 4. Design & Mobile Responsiveness
 - All UI components must be mobile-first and fully responsive across 375px (iPhone SE) to 1440px+ desktop viewports.
 - Use shadcn/ui components and Tailwind CSS design tokens. No inline raw hex styles.
+
+## 5. OSS Invariants
+- **Credits in Postgres only**: Never put wallet balance on the JWT/session. Session may carry `id` / `role` / `plan`; UI syncs credits via DB, `/api/user/profile`, and `credits-updated`.
+- **Fail closed**: Chat and billing APIs require auth. No synthetic `demo-user`. Do not call OpenAI if the DB is down or the wallet is empty (402 / 503).
+- **Stripe idempotency**: Webhooks must persist `StripeEvent` (event id) in the same transaction as plan/credit updates; duplicates return HTTP 200.
+- **Password change**: If `passwordHash` exists, require and verify `currentPassword` before updating.
+- **Scope**: Free + Pro ($19) only. No Redis, rate limiting, teams, RAG, or LangGraph. Never use $149 as an in-app SaaS plan price.
+- Prefer `services/` + `Result<T>`; no Prisma in React (see §1).

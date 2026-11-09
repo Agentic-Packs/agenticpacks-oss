@@ -13,7 +13,7 @@ The codebase follows a strict layered architecture with clean domain separation:
 ```
 src/
 ├── app/                    # Next.js 15 App Router
-│   ├── (auth)/             # Authentication routes (Sign-in, Register, Verify, Error)
+│   ├── (auth)/             # Authentication routes (Sign-in, Error)
 │   ├── (dashboard)/        # Authenticated dashboard (Chat, Billing, Account Settings)
 │   ├── (marketing)/        # Landing page, Pricing, Terms, Privacy
 │   └── api/                # API route handlers with Zod validation
@@ -45,6 +45,8 @@ src/
     ├── ai/                 # OpenAI streaming engine, token counters & credit deduction
     └── stripe/             # Checkout, portal, webhook credit grants
 ```
+
+Production Compose also ships `docker/postgres-backup.sh` and `docker/postgres-backup-entrypoint.sh` for daily Postgres dumps.
 
 ---
 
@@ -79,21 +81,28 @@ export const POST = withValidation(chatRequestSchema, async (req, data, session)
 ### 4. Single-Model AI Streaming (OpenAI GPT-4o-mini)
 - Configured via `OPENAI_API_KEY` (uses `gpt-4o-mini`).
 - Chat requires a valid key: `POST /api/chat` returns `400` when `OPENAI_API_KEY` is missing. There is no mock stream.
+- Chat is fail-closed: `requireAuth: true`, empty wallet → `402`, database unavailable → `503` (never call OpenAI unpaid).
+- Optional `CHAT_MAX_TOKENS` (default `4096`). Stop uses `useChat().stop()` and `abortSignal: req.signal`.
+- Credits: `Math.max(1, Math.ceil(totalTokens / 1000))` per completion; deduct in Postgres with a usage log.
 
 ### 5. Real-Time Credit Balance Synchronization
-Because NextAuth JWT sessions do not automatically refresh client-side on database balance changes:
-- The JWT callback re-reads `plan` and `credits` from Postgres, but only writes token fields when values actually change (avoids a session-cookie refetch loop).
+Credits are the wallet in **Postgres**, not the JWT. Session JWT fields are `id`, `role`, and `plan` (plus default Auth.js user fields). The JWT callback may refresh `plan` / `role` / `name` / `image` from the database when they change — never the credit balance.
+- Sidebar / billing / overview read layout DB props, `/api/user/profile`, or page-level Postgres queries.
 - Client components listen to the `credits-updated` custom window event.
-- After an AI generation completes, the chat component dispatches `window.dispatchEvent(new CustomEvent('credits-updated', { detail: { credits } }))`.
-- The dashboard sidebar updates immediately without requiring a full page refresh.
+- After an AI generation completes, chat fetches `/api/user/profile` and dispatches `window.dispatchEvent(new CustomEvent('credits-updated', { detail: { credits } }))`.
 - Billing uses `session.user.plan` and does not default the badge to `"free"` while the session is still loading.
 
-### 6. Scope Boundaries (AgenticPacks OSS Rules)
-- **Simple Stripe only**: In-app plans are Free (100 credits) and Pro ($19/mo, 500 credits) via Checkout, Customer Portal (`/dashboard/billing`), and a signed webhook. Paths: `POST /api/webhooks/stripe` and alias `POST /api/stripe/webhook`. Events: `checkout.session.completed`, `invoice.payment_succeeded`, `customer.subscription.deleted`, `customer.subscription.updated` (cancel). Portal cancel is **immediate**. Stamp `STRIPE_APP_ID` on session/subscription metadata; ignore foreign events with HTTP 200. Fail closed without `STRIPE_SECRET_KEY`. No publishable key, no Stripe.js, no Dashboard Price ID (`price_data` at Checkout). Do not add 3-tier catalogs, team credit pools, or mock instant-upgrades.
+### 6. Account password changes
+If the user already has a `passwordHash`, `PATCH /api/user/profile` must require and verify `currentPassword` before setting a new one. Accounts without a hash may set a first password without a current password (OAuth / first-time setup).
+
+### 7. Scope Boundaries (AgenticPacks OSS Rules)
+- **Simple Stripe only**: In-app plans are Free (100 credits) and Pro ($19/mo, 500 credits) via Checkout, Customer Portal (`/dashboard/billing`), and a signed webhook. Paths: `POST /api/webhooks/stripe` and alias `POST /api/stripe/webhook`. Events: `checkout.session.completed`, `invoice.payment_succeeded`, `customer.subscription.deleted`, `customer.subscription.updated` (cancel). Portal cancel is **immediate**. Stamp `STRIPE_APP_ID` on session/subscription metadata; ignore foreign events with HTTP 200. Fail closed without `STRIPE_SECRET_KEY`. Persist each Stripe event id in `StripeEvent` in the same transaction as plan/credit updates so retries are idempotent (duplicate → HTTP 200). No publishable key, no Stripe.js, no Dashboard Price ID (`price_data` at Checkout). Do not add 3-tier catalogs, team credit pools, or mock instant-upgrades.
 - **MIT License Only**: Do not add multi-tenant team logic to AgenticPacks OSS. Teams, RAG, and LangGraph belong strictly in **AgenticPacks Pro**.
 - **No Token Accounting Overload**: AgenticPacks OSS displays simple metric counters (credits remaining, total tokens processed). Complex ledger accounting and pool allocation belong in **AgenticPacks Pro**.
 - **Keep $149 as the template license**: Never use $149 as an in-app SaaS plan price.
 - **No Redis or Rate Limiting**: AgenticPacks OSS has no cache layer, health-check endpoint, or request throttling. Redis-backed rate limiting belongs in **AgenticPacks Pro**.
+- **No synthetic `demo-user`**: Demo login must use a real `User` row. Never mint a fake session id that skips credit checks.
+- **Production Docker**: Postgres is internal-only (not published). `postgres-backup` runs daily dumps with 7-day retention (`docker/` scripts).
 
 ---
 
@@ -106,8 +115,8 @@ Because NextAuth JWT sessions do not automatically refresh client-side on databa
 - `npm run prisma:push` - Push schema changes directly to PostgreSQL
 - `npm run prisma:seed` - Seed demo developer user (`user@demo.com` / `password123`)
 - `npm run prisma:studio` - Visual database explorer on `http://localhost:5555`
-- `docker compose -f docker-compose.dev.yml up -d` - Start development stack with live HMR (`prisma db push --accept-data-loss` on boot; run `npm run prisma:seed` in the app container afterward for the demo user)
-- `docker compose up -d --build` - Build and launch production containers
+- `docker compose -f docker-compose.dev.yml up -d` - Start development stack with live HMR (`prisma db push --accept-data-loss` on boot; run `npm run prisma:seed` in the app container afterward for the demo user). On Windows, prefer host Next + Docker Postgres if Prisma engines mismatch after the bind mount.
+- `docker compose up -d --build` - Build and launch production containers (private Postgres + backup sidecar)
 
 ---
 

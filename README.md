@@ -83,6 +83,8 @@ docker compose -f docker-compose.dev.yml exec app npm run prisma:seed
 - App: **[http://localhost:3000](http://localhost:3000)**
 - Seed Account: `user@demo.com` | Password: `password123` (comes with 100 starter credits)
 
+> **Windows note:** Dev Compose bind-mounts your host repo into the Alpine app container. A Prisma Client generated on Windows will not run inside Linux. Prefer **Option 2** on Windows, or regenerate Prisma inside the container (`docker compose -f docker-compose.dev.yml exec app npx prisma generate`) before seeding. Production Compose does not bind-mount the host and is unaffected.
+
 ---
 
 ### Option 2: Local Host Development (Native Node.js)
@@ -117,6 +119,8 @@ To run the optimized standalone production build:
 docker compose up -d --build
 ```
 
+Postgres is reachable only on the internal Compose network (not published to the host). A `postgres-backup` sidecar runs daily `pg_dump` dumps into the `postgres_backup_data` volume (7-day retention). Scripts live under [`docker/`](docker/).
+
 ---
 
 ## 🏗️ Architecture & Clean Stack
@@ -143,12 +147,15 @@ docker compose up -d --build
 ```
 agenticpacks-oss/
 ├── prisma/
-│   ├── schema.prisma            # PostgreSQL schema (User + stripeCustomerId, Session, Conversation, Message, UsageLog)
+│   ├── schema.prisma            # User, Conversation, Message, UsageLog, StripeEvent, …
 │   └── seed.ts                  # Demo account seeder (user@demo.com)
+├── docker/
+│   ├── postgres-backup.sh              # pg_dump + retention cleanup
+│   └── postgres-backup-entrypoint.sh   # Alpine cron (daily 02:00 UTC)
 ├── public/                      # Static assets & brand icons
 ├── src/
 │   ├── app/
-│   │   ├── (auth)/              # Sign-in, registration, and verification pages
+│   │   ├── (auth)/              # Sign-in and auth error pages
 │   │   ├── (dashboard)/         # Authenticated dashboard (Chat, Billing, Account Settings)
 │   │   ├── (marketing)/         # Landing, pricing, terms, and privacy pages
 │   │   └── api/
@@ -180,7 +187,7 @@ agenticpacks-oss/
 │       ├── ai/                  # OpenAI streaming, token counters & credit deduction
 │       └── stripe/              # Checkout, portal, webhook credit grants
 ├── docker-compose.dev.yml       # Development Docker stack (App with HMR + Postgres)
-├── docker-compose.yml           # Production Docker stack (Multi-stage build)
+├── docker-compose.yml           # Production Docker stack (app + private Postgres + backups)
 ├── Dockerfile.dev               # Development container specification
 └── Dockerfile.prod              # Optimized production container
 ```
@@ -196,6 +203,9 @@ AgenticPacks OSS is powered by OpenAI's fast, cost-efficient **GPT-4o-mini**:
    OPENAI_API_KEY="sk-..."
    ```
 2. **Without a key**: The app still boots, but `POST /api/chat` returns `400` until `OPENAI_API_KEY` is set. There is no mock stream in AgenticPacks OSS.
+3. **Auth & wallet (fail closed)**: Chat requires a signed-in user. Empty credits → `402`. Database unavailable → `503` (no unpaid OpenAI call). Optional `CHAT_MAX_TOKENS` caps completions (default `4096`).
+4. **Stop**: The chat UI Stop control aborts the client fetch; the route passes `abortSignal: req.signal` into `streamText`.
+5. **Credits**: About **1000 tokens = 1 credit** (`Math.max(1, Math.ceil(totalTokens / 1000))`), deducted in Postgres with a usage log. The JWT holds `id` / `role` / `plan` only — balances come from the database, `/api/user/profile`, and the `credits-updated` browser event after a reply.
 
 ---
 
@@ -212,6 +222,8 @@ STRIPE_APP_ID="agenticpacks-oss"
 ```
 
 `STRIPE_APP_ID` is a stable instance name (not a hostname). Checkout copies it onto session and subscription metadata. If this app receives an event with a different `appId`, the webhook returns **200** with `"Meant for another domain."` and does not change the database.
+
+Webhook handling is **idempotent**: each Stripe event id is stored in `StripeEvent` in the same transaction as plan/credit updates. Replays return HTTP **200** with `{ duplicate: true }` and do not grant credits twice.
 
 The handler lives at **`POST /api/webhooks/stripe`**. **`POST /api/stripe/webhook`** is the same handler (Pro-compatible alias). Point Stripe (CLI or ngrok) at either path. If you set `PORT` (this stack often uses `3005`), forward to that host port:
 
@@ -249,6 +261,7 @@ The **$149** AgenticPacks Pro price is the commercial **template** license, not 
 | `STRIPE_SECRET_KEY` | *Optional* | `sk_test_...` | Stripe secret. App boots without it; Checkout returns 400 until set. |
 | `STRIPE_WEBHOOK_SECRET` | *Optional* | `whsec_...` | Stripe webhook signing secret (`/api/webhooks/stripe` or `/api/stripe/webhook`) |
 | `STRIPE_APP_ID` | *Optional* | `agenticpacks-oss` | Instance id in Checkout/subscription metadata. Foreign events are ignored with HTTP 200. |
+| `CHAT_MAX_TOKENS` | *Optional* | `4096` | Max completion tokens for streamed chat (`streamText`) |
 | `LOG_LEVEL` | *Optional* | `info` | Pino log level |
 | `PORT` | *Optional* | `3000` | Application HTTP port |
 
