@@ -88,7 +88,7 @@ docker compose -f docker-compose.dev.yml exec app npm run prisma:seed
 ---
 
 ### Option 2: Local Host Development (Native Node.js)
-If you prefer running Next.js directly on your machine with a Dockerized database:
+If you prefer running Next.js directly on your machine with a Dockerized database. Requires **Node.js 22+** (`package.json` `engines`).
 
 ```bash
 # 1. Start PostgreSQL database container
@@ -132,12 +132,12 @@ Postgres is reachable only on the internal Compose network (not published to the
 [Middleware (Auth.js v5 JWT Session Validation & Route Protection)]
        │
        ▼
-[API Routes (withValidation Zod Schemas)]
+[API Routes (Zod validation; withValidation on many JSON body routes)]
        │
        ├──► [Services: AI Streaming (Vercel AI SDK 7 / OpenAI GPT-5 Mini)]
        ├──► [Services: Token Usage Counter & Real-Time Balance Sync]
        ├──► [Services: Stripe Checkout, Customer Portal & webhooks]
-       └──► [Services: Auth.js v5 (Google OAuth & Credentials)]
+       └──► [Lib: Auth.js v5 (Google OAuth & Credentials)]
        │
        ▼
 [Database Layer (Prisma ORM 6.4 + PostgreSQL 16 Alpine + Docker)]
@@ -196,15 +196,15 @@ agenticpacks-oss/
 
 ## 🤖 OpenAI Streaming Model
 
-AgenticPacks OSS is powered by OpenAI's fast, cost-efficient **GPT-5 Mini**:
+AgenticPacks OSS is powered by OpenAI's fast, cost-efficient **GPT-5 Mini** (`ai@7` with `@ai-sdk/react` UIMessage streaming):
 
 1. **Setup**: Provide your OpenAI key in `.env`:
    ```env
    OPENAI_API_KEY="sk-..."
    ```
 2. **Without a key**: The app still boots, but `POST /api/chat` returns `400` until `OPENAI_API_KEY` is set. There is no mock stream in AgenticPacks OSS.
-3. **Auth & wallet (fail closed)**: Chat requires a signed-in user. Empty credits → `402`. Database unavailable → `503` (no unpaid OpenAI call). Optional `CHAT_MAX_TOKENS` caps completions (default `4096`).
-4. **Stop**: The chat UI Stop control aborts the client fetch; the route passes `abortSignal: req.signal` into `streamText`.
+3. **Auth & wallet (fail closed)**: Chat requires a signed-in user. Empty credits → `402`. Fail closed on DB errors (no unpaid OpenAI call; conversation setup uses `503`, other paths may return `500`). Optional `CHAT_MAX_TOKENS` (default `4096`) caps completions via `maxOutputTokens` — read from `process.env`, not the Zod schema in `src/lib/env.ts`.
+4. **Stop**: The chat UI Stop control (`useChat` from `@ai-sdk/react`) aborts the client fetch; the route passes `abortSignal: req.signal` into `streamText`.
 5. **Credits**: About **1000 tokens = 1 credit** (`Math.max(1, Math.ceil(totalTokens / 1000))`), deducted in Postgres with a usage log. The JWT holds `id` / `role` / `plan` only — balances come from the database, `/api/user/profile`, and the `credits-updated` browser event after a reply.
 
 ---
@@ -221,11 +221,11 @@ STRIPE_WEBHOOK_SECRET="whsec_..."
 STRIPE_APP_ID="agenticpacks-oss"
 ```
 
-`STRIPE_APP_ID` is a stable instance name (not a hostname). Checkout copies it onto session and subscription metadata. If this app receives an event with a different `appId`, the webhook returns **200** with `"Meant for another domain."` and does not change the database.
+`STRIPE_APP_ID` is a stable instance name (not a hostname). Checkout copies it onto session and subscription metadata. If this app receives an event with a different `appId`, the webhook returns **200** with `"Meant for another domain."` and does **not** change plan or credits (an idempotency `StripeEvent` row may still be recorded).
 
 Webhook handling is **idempotent**: each Stripe event id is stored in `StripeEvent` in the same transaction as plan/credit updates. Replays return HTTP **200** with `{ duplicate: true }` and do not grant credits twice.
 
-The handler lives at **`POST /api/webhooks/stripe`**. **`POST /api/stripe/webhook`** is the same handler (Pro-compatible alias). Point Stripe (CLI or ngrok) at either path. If you set `PORT` (this stack often uses `3005`), forward to that host port:
+The handler lives at **`POST /api/webhooks/stripe`**. **`POST /api/stripe/webhook`** is the same handler (Pro-compatible alias). Point Stripe (CLI or ngrok) at either path. Default app port is **3000** (`PORT` in `.env` if you override it):
 
 ```bash
 stripe listen --forward-to localhost:3000/api/webhooks/stripe
@@ -261,7 +261,7 @@ The **$149** AgenticPacks Pro price is the commercial **template** license, not 
 | `STRIPE_SECRET_KEY` | *Optional* | `sk_test_...` | Stripe secret. App boots without it; Checkout returns 400 until set. |
 | `STRIPE_WEBHOOK_SECRET` | *Optional* | `whsec_...` | Stripe webhook signing secret (`/api/webhooks/stripe` or `/api/stripe/webhook`) |
 | `STRIPE_APP_ID` | *Optional* | `agenticpacks-oss` | Instance id in Checkout/subscription metadata. Foreign events are ignored with HTTP 200. |
-| `CHAT_MAX_TOKENS` | *Optional* | `4096` | Max completion tokens for streamed chat (`streamText`) |
+| `CHAT_MAX_TOKENS` | *Optional* | `4096` | Max completion tokens for streamed chat (`maxOutputTokens`). Read from `process.env` (not in `src/lib/env.ts` Zod schema). |
 | `LOG_LEVEL` | *Optional* | `info` | Pino log level |
 | `PORT` | *Optional* | `3000` | Application HTTP port |
 

@@ -1,9 +1,9 @@
 # AgenticPacks OSS Cursor Rules & Architectural Directives
 
 ## 1. Strict Layer Architecture
-- **React Components (`src/components/`, `src/app/`)**: MUST NEVER call Prisma directly (`prisma.user.find...`, `$queryRaw`, etc.). All data mutations and database queries must go through the dedicated service functions in `src/services/` or server actions/API route handlers.
-- **Service Layer (`src/services/`)**: All business logic, AI completion, token accounting, and Prisma operations live here.
-- **Library Layer (`src/lib/`)**: Shared utilities, database client singleton (`db.ts`), environment schema (`env.ts`), logger (`logger.ts`), and error hierarchy (`errors.ts`).
+- **React Components (`src/components/`) and client components**: MUST NEVER call Prisma directly (`prisma.user.find...`, `$queryRaw`, `db`, etc.). Go through `src/services/`, server actions, or API route handlers.
+- **Server Components, API routes (`src/app/`), and Service Layer (`src/services/`)**: May use Prisma/`db`. Prefer putting reusable business logic and Prisma operations in `src/services/`.
+- **Library Layer (`src/lib/`)**: Shared utilities, database client singleton (`db.ts`), environment schema (`env.ts`), logger (`logger.ts`), and error hierarchy (`errors.ts`). Auth lives here (`auth.ts` / `auth.config.ts`), not under `services/`.
 
 ## 2. Service Function Return Signatures
 All service functions must return a strict Discriminated Union:
@@ -15,8 +15,8 @@ type Result<T> =
 Never throw unhandled errors in service functions; catch, log with `logger`, and return `{ success: false, error, code }`.
 
 ## 3. Type Safety
-- TypeScript strict mode is enabled. NEVER use `any`. Use `unknown`, generic constraints, or explicit Zod inference types (`z.infer<typeof Schema>`).
-- Validate all incoming request bodies using Zod schemas located in `src/lib/validation/`. Use the `withValidation` wrapper on API endpoints.
+- TypeScript strict mode is enabled. Prefer `unknown`, generic constraints, or Zod inference (`z.infer<typeof Schema>`) over `any`.
+- Validate JSON request bodies with Zod schemas in `src/lib/validation/`. Prefer the `withValidation` wrapper on those endpoints (not every route uses it — webhooks, some auth/profile/conversation handlers validate differently).
 
 ## 4. Design & Mobile Responsiveness
 - All UI components must be mobile-first and fully responsive across 375px (iPhone SE) to 1440px+ desktop viewports.
@@ -24,8 +24,9 @@ Never throw unhandled errors in service functions; catch, log with `logger`, and
 
 ## 5. OSS Invariants
 - **Credits in Postgres only**: Never put wallet balance on the JWT/session. Session may carry `id` / `role` / `plan`; UI syncs credits via DB, `/api/user/profile`, and `credits-updated`.
-- **Fail closed**: Chat and billing APIs require auth. No synthetic `demo-user`. Do not call OpenAI if the DB is down or the wallet is empty (402 / 503).
-- **Stripe idempotency**: Webhooks must persist `StripeEvent` (event id) in the same transaction as plan/credit updates; duplicates return HTTP 200.
+- **Fail closed**: Chat and billing APIs require auth. No synthetic `demo-user`. Do not call OpenAI if the DB is down or the wallet is empty (402 / fail closed; status may be 503 or 500 depending on the failure path).
+- **Stripe idempotency**: Webhooks must persist `StripeEvent` (event id) in the same transaction as plan/credit updates; duplicates return HTTP 200. Foreign `appId` must not change plan/credits (an idempotency row may still be recorded).
 - **Password change**: If `passwordHash` exists, require and verify `currentPassword` before updating.
+- **AI stack**: Single OpenAI model `gpt-5-mini` via AI SDK 7 (`ai@7`). Client: `useChat` from `@ai-sdk/react` + `DefaultChatTransport` / UIMessage `parts`. Server: `createUIMessageStreamResponse` + `toUIMessageStream`; `instructions` / `maxOutputTokens` / `onEnd`. Map SDK `inputTokens`/`outputTokens` → app `promptTokens`/`completionTokens`. Do not reintroduce `ai/react` or `toDataStreamResponse`. Note `@ai-sdk/openai` and `@ai-sdk/react` are v4 peers of `ai@7`.
 - **Scope**: Free + Pro ($19) only. No Redis, rate limiting, teams, RAG, or LangGraph. Never use $149 as an in-app SaaS plan price.
-- Prefer `services/` + `Result<T>`; no Prisma in React (see §1).
+- Prefer `services/` + `Result<T>`; no Prisma in React components (see §1).
