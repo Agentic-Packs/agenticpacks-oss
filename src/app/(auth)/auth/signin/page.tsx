@@ -14,7 +14,7 @@ import { toast } from "sonner";
 export default function AuthPage() {
   const [activeTab, setActiveTab] = useState<"signin" | "signup">("signin");
   const [loading, setLoading] = useState(false);
-  const [hasGoogle, setHasGoogle] = useState(false);
+  const [googleReady, setGoogleReady] = useState(false);
 
   // Sign In state
   const [signInEmail, setSignInEmail] = useState("");
@@ -27,7 +27,7 @@ export default function AuthPage() {
 
   useEffect(() => {
     getProviders().then((providers) => {
-      if (providers?.google) setHasGoogle(true);
+      if (providers?.google) setGoogleReady(true);
     }).catch(() => {});
   }, []);
 
@@ -266,23 +266,21 @@ export default function AuthPage() {
             </TabsContent>
           </Tabs>
 
-          {/* Google OAuth (conditionally displayed if keys configured) */}
-          {hasGoogle && (
-            <div className="pt-1">
-              <div className="relative flex items-center justify-center my-2">
-                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border" /></div>
-                <span className="relative bg-card px-2 text-[10px] uppercase tracking-wider text-muted-foreground">or</span>
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full text-xs h-9"
-                onClick={handleGoogleSignIn}
-              >
-                Continue with Google
-              </Button>
+          <div className="pt-1">
+            <div className="relative flex items-center justify-center my-2">
+              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border" /></div>
+              <span className="relative bg-card px-2 text-[10px] uppercase tracking-wider text-muted-foreground">or</span>
             </div>
-          )}
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full text-xs h-9"
+              onClick={handleGoogleSignIn}
+              disabled={!googleReady}
+            >
+              Continue with Google
+            </Button>
+          </div>
         </CardContent>
 
         <CardFooter className="flex justify-center border-t border-border/60 py-3 text-xs text-muted-foreground">
