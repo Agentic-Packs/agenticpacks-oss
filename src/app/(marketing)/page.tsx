@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import BlurText from "@/components/react-bits/BlurText";
 import DecryptedText from "@/components/react-bits/DecryptedText";
+import { RequestPathFlow } from "@/components/marketing/request-path-flow";
 
 const specs = [
   {
@@ -121,26 +122,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="border border-border bg-card p-4 sm:p-6 font-mono text-[11px] sm:text-xs overflow-x-auto">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-border pb-3 mb-4 text-muted-foreground">
-              <span>src/</span>
-              <span>Next.js 15 App Router</span>
-            </div>
-            <pre className="leading-relaxed text-foreground">{`[Client / Browser]
-       │
-       ▼
-[Middleware — Auth.js JWT]
-       │
-       ▼
-[API routes — Zod via withValidation]
-       │
-       ├──► AI streaming (AI SDK 7 / GPT-5 Mini)
-       ├──► Credit counter in Postgres
-       └──► Auth.js (Google OAuth and credentials)
-       │
-       ▼
-[Prisma + PostgreSQL 16]`}</pre>
-          </div>
+          <RequestPathFlow />
         </div>
       </section>
 
