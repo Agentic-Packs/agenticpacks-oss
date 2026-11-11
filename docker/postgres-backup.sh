@@ -5,7 +5,7 @@ PGHOST="${PGHOST:-postgres}"
 PGPORT="${PGPORT:-5432}"
 PGUSER="${PGUSER:-postgres}"
 PGPASSWORD="${PGPASSWORD:-postgrespassword}"
-PGDATABASE="${PGDATABASE:-ai_starter_community}"
+PGDATABASE="${PGDATABASE:-agenticpacks_oss}"
 BACKUP_RETENTION_DAYS="${BACKUP_RETENTION_DAYS:-7}"
 BACKUP_DIR="${BACKUP_DIR:-/backups}"
 

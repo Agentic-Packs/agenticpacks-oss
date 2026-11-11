@@ -83,6 +83,8 @@ docker compose -f docker-compose.dev.yml exec app npm run prisma:seed
 - App: **[http://localhost:3000](http://localhost:3000)**
 - Seed Account: `user@demo.com` | Password: `password123` (comes with 100 starter credits)
 
+Dev Compose publishes the app and Postgres host ports from `.env` (`PORT`, default `3000`; `DB_PORT`, default `5432`). The process inside the app container still listens on `3000`. If you change `PORT`, set `AUTH_URL` (or `NEXTAUTH_URL`) and `NEXT_PUBLIC_APP_URL` to the same origin.
+
 > **Windows note:** Dev Compose bind-mounts your host repo into the Alpine app container. A Prisma Client generated on Windows will not run inside Linux. Prefer **Option 2** on Windows, or regenerate Prisma inside the container (`docker compose -f docker-compose.dev.yml exec app npx prisma generate`) before seeding. Production Compose does not bind-mount the host and is unaffected.
 
 ---
@@ -252,7 +254,7 @@ The **$149** AgenticPacks Pro price is the commercial **template** license, not 
 
 | Variable | Required | Default / Example | Purpose |
 | :--- | :---: | :--- | :--- |
-| `DATABASE_URL` | **Yes** | `postgresql://postgres:postgrespassword@localhost:5432/ai_starter_community` | PostgreSQL connection string |
+| `DATABASE_URL` | **Yes** | `postgresql://postgres:postgrespassword@localhost:5432/agenticpacks_oss` | PostgreSQL connection string |
 | `AUTH_URL` | **Yes** | `http://localhost:3000` | Public origin URL for Auth.js callbacks (`NEXTAUTH_URL` also supported) |
 | `AUTH_SECRET` | **Yes** | `random-32-char-string` | JWT session encryption secret (`openssl rand -hex 32`) |
 | `OPENAI_API_KEY` | **Yes (for chat)** | `sk-...` | API key for OpenAI GPT-5 Mini streaming. App boots without it; chat requests fail until it is set. |
@@ -263,7 +265,8 @@ The **$149** AgenticPacks Pro price is the commercial **template** license, not 
 | `STRIPE_APP_ID` | *Optional* | `agenticpacks-oss` | Instance id in Checkout/subscription metadata. Foreign events are ignored with HTTP 200. |
 | `CHAT_MAX_TOKENS` | *Optional* | `4096` | Max completion tokens for streamed chat (`maxOutputTokens`). Read from `process.env` (not in `src/lib/env.ts` Zod schema). |
 | `LOG_LEVEL` | *Optional* | `info` | Pino log level |
-| `PORT` | *Optional* | `3000` | Application HTTP port |
+| `PORT` | *Optional* | `3000` | Host port published by Compose for the app (`${PORT:-3000}:3000`). Keep `AUTH_URL` on the same origin. |
+| `DB_PORT` | *Optional* | `5432` | Host port published by Compose for Postgres (`${DB_PORT:-5432}:5432`) |
 
 ---
 

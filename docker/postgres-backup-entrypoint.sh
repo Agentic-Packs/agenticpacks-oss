@@ -8,7 +8,7 @@ apk add --no-cache postgresql-client tzdata
   echo "PGPORT=${PGPORT:-5432}"
   echo "PGUSER=${PGUSER:-postgres}"
   echo "PGPASSWORD=${PGPASSWORD:-postgrespassword}"
-  echo "PGDATABASE=${PGDATABASE:-ai_starter_community}"
+  echo "PGDATABASE=${PGDATABASE:-agenticpacks_oss}"
   echo "BACKUP_RETENTION_DAYS=${BACKUP_RETENTION_DAYS:-7}"
   echo "TZ=${TZ:-UTC}"
 } > /etc/postgres-backup.env

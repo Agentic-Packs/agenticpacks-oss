@@ -2,29 +2,29 @@ services:
   # 1. PostgreSQL Database (Local Dev)
   postgres:
     image: postgres:16-alpine
-    container_name: ai_starter_community_postgres_dev
+    container_name: agenticpacks_oss_postgres_dev
     restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgrespassword
-      POSTGRES_DB: ai_starter_community
+      POSTGRES_DB: agenticpacks_oss
     ports:
       - "${DB_PORT:-5432}:5432"
     volumes:
       - postgres_dev_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d ai_starter_community"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d agenticpacks_oss"]
       interval: 5s
       timeout: 5s
       retries: 5
 
   # 2. Next.js App with Live Hot-Reloading (HMR)
   app:
-    image: ai-starter-community-app-dev:latest
+    image: agenticpacks-oss-app-dev:latest
     build:
       context: .
       dockerfile: Dockerfile.dev
-    container_name: ai_starter_community_app_dev
+    container_name: agenticpacks_oss_app_dev
     command: sh -c "npx prisma db push --accept-data-loss --skip-generate && npm run dev -- -H 0.0.0.0 -p 3000"
     working_dir: /app
     restart: unless-stopped
@@ -32,10 +32,10 @@ services:
       - "${PORT:-3000}:3000"
     environment:
       - NODE_ENV=development
-      - DATABASE_URL=postgresql://postgres:postgrespassword@postgres:5432/ai_starter_community
+      - DATABASE_URL=postgresql://postgres:postgrespassword@postgres:5432/agenticpacks_oss
       - NEXTAUTH_URL=http://localhost:${PORT:-3000}
       - NEXT_PUBLIC_APP_URL=http://localhost:${PORT:-3000}
-      - AUTH_SECRET=community-dev-secret-key-32-chars-long
+      - AUTH_SECRET=agenticpacks-oss-dev-secret-key-32-chars-long
       - AUTH_TRUST_HOST=true
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
