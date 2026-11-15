@@ -4,6 +4,7 @@ export type AppErrorCode =
   | "NOT_FOUND"
   | "VALIDATION_ERROR"
   | "INSUFFICIENT_CREDITS"
+  | "SUBSCRIPTION_PAST_DUE"
   | "INVALID_API_KEY"
   | "AI_PROVIDER_ERROR"
   | "STRIPE_ERROR"
@@ -68,6 +69,9 @@ export const ErrorFactory = {
     failure(msg, "VALIDATION_ERROR", 400, details),
   insufficientCredits: (msg = "Insufficient credits remaining."): Result<never> =>
     failure(msg, "INSUFFICIENT_CREDITS", 402),
+  subscriptionPastDue: (
+    msg = "Your last payment failed. Update your billing details to continue using AI features."
+  ): Result<never> => failure(msg, "SUBSCRIPTION_PAST_DUE", 402),
   invalidApiKey: (msg = "Invalid or missing API key"): Result<never> =>
     failure(msg, "INVALID_API_KEY", 401),
   aiProvider: (msg: string, details?: unknown): Result<never> =>

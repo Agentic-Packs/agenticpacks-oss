@@ -8,6 +8,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELED
+}
+
 model User {
   id            String         @id @default(cuid())
   name          String?
@@ -18,7 +24,10 @@ model User {
   credits          Int            @default(100)
   role             String         @default("USER")
   plan             String         @default("free") // free | pro
+  subscriptionStatus SubscriptionStatus @default(ACTIVE)
   stripeCustomerId String?        @unique
+  stripeSubscriptionId String?    @unique
+  nextPlan         String?
   accounts         Account[]
   sessions      Session[]
   usageLogs     UsageLog[]

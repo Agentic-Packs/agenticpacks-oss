@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const checkoutSessionSchema = z.object({
-  planId: z.literal("pro"),
+  planId: z.enum(["pro", "free"]),
   successUrl: z.string().url().optional(),
   cancelUrl: z.string().url().optional(),
 });

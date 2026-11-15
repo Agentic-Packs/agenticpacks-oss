@@ -131,7 +131,10 @@ exports.Prisma.UserScalarFieldEnum = {
   credits: 'credits',
   role: 'role',
   plan: 'plan',
+  subscriptionStatus: 'subscriptionStatus',
   stripeCustomerId: 'stripeCustomerId',
+  stripeSubscriptionId: 'stripeSubscriptionId',
+  nextPlan: 'nextPlan',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -212,7 +215,11 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
-
+exports.SubscriptionStatus = exports.$Enums.SubscriptionStatus = {
+  ACTIVE: 'ACTIVE',
+  PAST_DUE: 'PAST_DUE',
+  CANCELED: 'CANCELED'
+};
 
 exports.Prisma.ModelName = {
   User: 'User',

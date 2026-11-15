@@ -55,6 +55,24 @@ export type Message = $Result.DefaultSelection<Prisma.$MessagePayload>
 export type StripeEvent = $Result.DefaultSelection<Prisma.$StripeEventPayload>
 
 /**
+ * Enums
+ */
+export namespace $Enums {
+  export const SubscriptionStatus: {
+  ACTIVE: 'ACTIVE',
+  PAST_DUE: 'PAST_DUE',
+  CANCELED: 'CANCELED'
+};
+
+export type SubscriptionStatus = (typeof SubscriptionStatus)[keyof typeof SubscriptionStatus]
+
+}
+
+export type SubscriptionStatus = $Enums.SubscriptionStatus
+
+export const SubscriptionStatus: typeof $Enums.SubscriptionStatus
+
+/**
  * ##  Prisma Client ʲˢ
  *
  * Type-safe database client for TypeScript & Node.js
@@ -1616,7 +1634,10 @@ export namespace Prisma {
     credits: number | null
     role: string | null
     plan: string | null
+    subscriptionStatus: $Enums.SubscriptionStatus | null
     stripeCustomerId: string | null
+    stripeSubscriptionId: string | null
+    nextPlan: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -1631,7 +1652,10 @@ export namespace Prisma {
     credits: number | null
     role: string | null
     plan: string | null
+    subscriptionStatus: $Enums.SubscriptionStatus | null
     stripeCustomerId: string | null
+    stripeSubscriptionId: string | null
+    nextPlan: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -1646,7 +1670,10 @@ export namespace Prisma {
     credits: number
     role: number
     plan: number
+    subscriptionStatus: number
     stripeCustomerId: number
+    stripeSubscriptionId: number
+    nextPlan: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -1671,7 +1698,10 @@ export namespace Prisma {
     credits?: true
     role?: true
     plan?: true
+    subscriptionStatus?: true
     stripeCustomerId?: true
+    stripeSubscriptionId?: true
+    nextPlan?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -1686,7 +1716,10 @@ export namespace Prisma {
     credits?: true
     role?: true
     plan?: true
+    subscriptionStatus?: true
     stripeCustomerId?: true
+    stripeSubscriptionId?: true
+    nextPlan?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -1701,7 +1734,10 @@ export namespace Prisma {
     credits?: true
     role?: true
     plan?: true
+    subscriptionStatus?: true
     stripeCustomerId?: true
+    stripeSubscriptionId?: true
+    nextPlan?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -1803,7 +1839,10 @@ export namespace Prisma {
     credits: number
     role: string
     plan: string
+    subscriptionStatus: $Enums.SubscriptionStatus
     stripeCustomerId: string | null
+    stripeSubscriptionId: string | null
+    nextPlan: string | null
     createdAt: Date
     updatedAt: Date
     _count: UserCountAggregateOutputType | null
@@ -1837,7 +1876,10 @@ export namespace Prisma {
     credits?: boolean
     role?: boolean
     plan?: boolean
+    subscriptionStatus?: boolean
     stripeCustomerId?: boolean
+    stripeSubscriptionId?: boolean
+    nextPlan?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     accounts?: boolean | User$accountsArgs<ExtArgs>
@@ -1857,7 +1899,10 @@ export namespace Prisma {
     credits?: boolean
     role?: boolean
     plan?: boolean
+    subscriptionStatus?: boolean
     stripeCustomerId?: boolean
+    stripeSubscriptionId?: boolean
+    nextPlan?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["user"]>
@@ -1872,7 +1917,10 @@ export namespace Prisma {
     credits?: boolean
     role?: boolean
     plan?: boolean
+    subscriptionStatus?: boolean
     stripeCustomerId?: boolean
+    stripeSubscriptionId?: boolean
+    nextPlan?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["user"]>
@@ -1887,12 +1935,15 @@ export namespace Prisma {
     credits?: boolean
     role?: boolean
     plan?: boolean
+    subscriptionStatus?: boolean
     stripeCustomerId?: boolean
+    stripeSubscriptionId?: boolean
+    nextPlan?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "emailVerified" | "passwordHash" | "image" | "credits" | "role" | "plan" | "stripeCustomerId" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "emailVerified" | "passwordHash" | "image" | "credits" | "role" | "plan" | "subscriptionStatus" | "stripeCustomerId" | "stripeSubscriptionId" | "nextPlan" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     accounts?: boolean | User$accountsArgs<ExtArgs>
     sessions?: boolean | User$sessionsArgs<ExtArgs>
@@ -1921,7 +1972,10 @@ export namespace Prisma {
       credits: number
       role: string
       plan: string
+      subscriptionStatus: $Enums.SubscriptionStatus
       stripeCustomerId: string | null
+      stripeSubscriptionId: string | null
+      nextPlan: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["user"]>
@@ -2360,7 +2414,10 @@ export namespace Prisma {
     readonly credits: FieldRef<"User", 'Int'>
     readonly role: FieldRef<"User", 'String'>
     readonly plan: FieldRef<"User", 'String'>
+    readonly subscriptionStatus: FieldRef<"User", 'SubscriptionStatus'>
     readonly stripeCustomerId: FieldRef<"User", 'String'>
+    readonly stripeSubscriptionId: FieldRef<"User", 'String'>
+    readonly nextPlan: FieldRef<"User", 'String'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
     readonly updatedAt: FieldRef<"User", 'DateTime'>
   }
@@ -10391,7 +10448,10 @@ export namespace Prisma {
     credits: 'credits',
     role: 'role',
     plan: 'plan',
+    subscriptionStatus: 'subscriptionStatus',
     stripeCustomerId: 'stripeCustomerId',
+    stripeSubscriptionId: 'stripeSubscriptionId',
+    nextPlan: 'nextPlan',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -10554,6 +10614,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'SubscriptionStatus'
+   */
+  export type EnumSubscriptionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubscriptionStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'SubscriptionStatus[]'
+   */
+  export type ListEnumSubscriptionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubscriptionStatus[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Float'
    */
   export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -10583,7 +10657,10 @@ export namespace Prisma {
     credits?: IntFilter<"User"> | number
     role?: StringFilter<"User"> | string
     plan?: StringFilter<"User"> | string
+    subscriptionStatus?: EnumSubscriptionStatusFilter<"User"> | $Enums.SubscriptionStatus
     stripeCustomerId?: StringNullableFilter<"User"> | string | null
+    stripeSubscriptionId?: StringNullableFilter<"User"> | string | null
+    nextPlan?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     accounts?: AccountListRelationFilter
@@ -10602,7 +10679,10 @@ export namespace Prisma {
     credits?: SortOrder
     role?: SortOrder
     plan?: SortOrder
+    subscriptionStatus?: SortOrder
     stripeCustomerId?: SortOrderInput | SortOrder
+    stripeSubscriptionId?: SortOrderInput | SortOrder
+    nextPlan?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     accounts?: AccountOrderByRelationAggregateInput
@@ -10615,6 +10695,7 @@ export namespace Prisma {
     id?: string
     email?: string
     stripeCustomerId?: string
+    stripeSubscriptionId?: string
     AND?: UserWhereInput | UserWhereInput[]
     OR?: UserWhereInput[]
     NOT?: UserWhereInput | UserWhereInput[]
@@ -10625,13 +10706,15 @@ export namespace Prisma {
     credits?: IntFilter<"User"> | number
     role?: StringFilter<"User"> | string
     plan?: StringFilter<"User"> | string
+    subscriptionStatus?: EnumSubscriptionStatusFilter<"User"> | $Enums.SubscriptionStatus
+    nextPlan?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     accounts?: AccountListRelationFilter
     sessions?: SessionListRelationFilter
     usageLogs?: UsageLogListRelationFilter
     conversations?: ConversationListRelationFilter
-  }, "id" | "email" | "stripeCustomerId">
+  }, "id" | "email" | "stripeCustomerId" | "stripeSubscriptionId">
 
   export type UserOrderByWithAggregationInput = {
     id?: SortOrder
@@ -10643,7 +10726,10 @@ export namespace Prisma {
     credits?: SortOrder
     role?: SortOrder
     plan?: SortOrder
+    subscriptionStatus?: SortOrder
     stripeCustomerId?: SortOrderInput | SortOrder
+    stripeSubscriptionId?: SortOrderInput | SortOrder
+    nextPlan?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: UserCountOrderByAggregateInput
@@ -10666,7 +10752,10 @@ export namespace Prisma {
     credits?: IntWithAggregatesFilter<"User"> | number
     role?: StringWithAggregatesFilter<"User"> | string
     plan?: StringWithAggregatesFilter<"User"> | string
+    subscriptionStatus?: EnumSubscriptionStatusWithAggregatesFilter<"User"> | $Enums.SubscriptionStatus
     stripeCustomerId?: StringNullableWithAggregatesFilter<"User"> | string | null
+    stripeSubscriptionId?: StringNullableWithAggregatesFilter<"User"> | string | null
+    nextPlan?: StringNullableWithAggregatesFilter<"User"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
   }
@@ -11101,7 +11190,10 @@ export namespace Prisma {
     credits?: number
     role?: string
     plan?: string
+    subscriptionStatus?: $Enums.SubscriptionStatus
     stripeCustomerId?: string | null
+    stripeSubscriptionId?: string | null
+    nextPlan?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     accounts?: AccountCreateNestedManyWithoutUserInput
@@ -11120,7 +11212,10 @@ export namespace Prisma {
     credits?: number
     role?: string
     plan?: string
+    subscriptionStatus?: $Enums.SubscriptionStatus
     stripeCustomerId?: string | null
+    stripeSubscriptionId?: string | null
+    nextPlan?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
@@ -11139,7 +11234,10 @@ export namespace Prisma {
     credits?: IntFieldUpdateOperationsInput | number
     role?: StringFieldUpdateOperationsInput | string
     plan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    nextPlan?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     accounts?: AccountUpdateManyWithoutUserNestedInput
@@ -11158,7 +11256,10 @@ export namespace Prisma {
     credits?: IntFieldUpdateOperationsInput | number
     role?: StringFieldUpdateOperationsInput | string
     plan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    nextPlan?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -11177,7 +11278,10 @@ export namespace Prisma {
     credits?: number
     role?: string
     plan?: string
+    subscriptionStatus?: $Enums.SubscriptionStatus
     stripeCustomerId?: string | null
+    stripeSubscriptionId?: string | null
+    nextPlan?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -11192,7 +11296,10 @@ export namespace Prisma {
     credits?: IntFieldUpdateOperationsInput | number
     role?: StringFieldUpdateOperationsInput | string
     plan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    nextPlan?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -11207,7 +11314,10 @@ export namespace Prisma {
     credits?: IntFieldUpdateOperationsInput | number
     role?: StringFieldUpdateOperationsInput | string
     plan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    nextPlan?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -11697,6 +11807,13 @@ export namespace Prisma {
     not?: NestedIntFilter<$PrismaModel> | number
   }
 
+  export type EnumSubscriptionStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.SubscriptionStatus | EnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.SubscriptionStatus[] | ListEnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SubscriptionStatus[] | ListEnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumSubscriptionStatusFilter<$PrismaModel> | $Enums.SubscriptionStatus
+  }
+
   export type DateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -11763,7 +11880,10 @@ export namespace Prisma {
     credits?: SortOrder
     role?: SortOrder
     plan?: SortOrder
+    subscriptionStatus?: SortOrder
     stripeCustomerId?: SortOrder
+    stripeSubscriptionId?: SortOrder
+    nextPlan?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -11782,7 +11902,10 @@ export namespace Prisma {
     credits?: SortOrder
     role?: SortOrder
     plan?: SortOrder
+    subscriptionStatus?: SortOrder
     stripeCustomerId?: SortOrder
+    stripeSubscriptionId?: SortOrder
+    nextPlan?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -11797,7 +11920,10 @@ export namespace Prisma {
     credits?: SortOrder
     role?: SortOrder
     plan?: SortOrder
+    subscriptionStatus?: SortOrder
     stripeCustomerId?: SortOrder
+    stripeSubscriptionId?: SortOrder
+    nextPlan?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -11870,6 +11996,16 @@ export namespace Prisma {
     _sum?: NestedIntFilter<$PrismaModel>
     _min?: NestedIntFilter<$PrismaModel>
     _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type EnumSubscriptionStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.SubscriptionStatus | EnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.SubscriptionStatus[] | ListEnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SubscriptionStatus[] | ListEnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumSubscriptionStatusWithAggregatesFilter<$PrismaModel> | $Enums.SubscriptionStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumSubscriptionStatusFilter<$PrismaModel>
+    _max?: NestedEnumSubscriptionStatusFilter<$PrismaModel>
   }
 
   export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -12235,6 +12371,10 @@ export namespace Prisma {
     divide?: number
   }
 
+  export type EnumSubscriptionStatusFieldUpdateOperationsInput = {
+    set?: $Enums.SubscriptionStatus
+  }
+
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
   }
@@ -12521,6 +12661,13 @@ export namespace Prisma {
     not?: NestedIntFilter<$PrismaModel> | number
   }
 
+  export type NestedEnumSubscriptionStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.SubscriptionStatus | EnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.SubscriptionStatus[] | ListEnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SubscriptionStatus[] | ListEnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumSubscriptionStatusFilter<$PrismaModel> | $Enums.SubscriptionStatus
+  }
+
   export type NestedDateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -12616,6 +12763,16 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type NestedEnumSubscriptionStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.SubscriptionStatus | EnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.SubscriptionStatus[] | ListEnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SubscriptionStatus[] | ListEnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumSubscriptionStatusWithAggregatesFilter<$PrismaModel> | $Enums.SubscriptionStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumSubscriptionStatusFilter<$PrismaModel>
+    _max?: NestedEnumSubscriptionStatusFilter<$PrismaModel>
   }
 
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -12899,7 +13056,10 @@ export namespace Prisma {
     credits?: number
     role?: string
     plan?: string
+    subscriptionStatus?: $Enums.SubscriptionStatus
     stripeCustomerId?: string | null
+    stripeSubscriptionId?: string | null
+    nextPlan?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     sessions?: SessionCreateNestedManyWithoutUserInput
@@ -12917,7 +13077,10 @@ export namespace Prisma {
     credits?: number
     role?: string
     plan?: string
+    subscriptionStatus?: $Enums.SubscriptionStatus
     stripeCustomerId?: string | null
+    stripeSubscriptionId?: string | null
+    nextPlan?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
@@ -12951,7 +13114,10 @@ export namespace Prisma {
     credits?: IntFieldUpdateOperationsInput | number
     role?: StringFieldUpdateOperationsInput | string
     plan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    nextPlan?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sessions?: SessionUpdateManyWithoutUserNestedInput
@@ -12969,7 +13135,10 @@ export namespace Prisma {
     credits?: IntFieldUpdateOperationsInput | number
     role?: StringFieldUpdateOperationsInput | string
     plan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    nextPlan?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
@@ -12987,7 +13156,10 @@ export namespace Prisma {
     credits?: number
     role?: string
     plan?: string
+    subscriptionStatus?: $Enums.SubscriptionStatus
     stripeCustomerId?: string | null
+    stripeSubscriptionId?: string | null
+    nextPlan?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     accounts?: AccountCreateNestedManyWithoutUserInput
@@ -13005,7 +13177,10 @@ export namespace Prisma {
     credits?: number
     role?: string
     plan?: string
+    subscriptionStatus?: $Enums.SubscriptionStatus
     stripeCustomerId?: string | null
+    stripeSubscriptionId?: string | null
+    nextPlan?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
@@ -13039,7 +13214,10 @@ export namespace Prisma {
     credits?: IntFieldUpdateOperationsInput | number
     role?: StringFieldUpdateOperationsInput | string
     plan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    nextPlan?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     accounts?: AccountUpdateManyWithoutUserNestedInput
@@ -13057,7 +13235,10 @@ export namespace Prisma {
     credits?: IntFieldUpdateOperationsInput | number
     role?: StringFieldUpdateOperationsInput | string
     plan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    nextPlan?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -13075,7 +13256,10 @@ export namespace Prisma {
     credits?: number
     role?: string
     plan?: string
+    subscriptionStatus?: $Enums.SubscriptionStatus
     stripeCustomerId?: string | null
+    stripeSubscriptionId?: string | null
+    nextPlan?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     accounts?: AccountCreateNestedManyWithoutUserInput
@@ -13093,7 +13277,10 @@ export namespace Prisma {
     credits?: number
     role?: string
     plan?: string
+    subscriptionStatus?: $Enums.SubscriptionStatus
     stripeCustomerId?: string | null
+    stripeSubscriptionId?: string | null
+    nextPlan?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
@@ -13127,7 +13314,10 @@ export namespace Prisma {
     credits?: IntFieldUpdateOperationsInput | number
     role?: StringFieldUpdateOperationsInput | string
     plan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    nextPlan?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     accounts?: AccountUpdateManyWithoutUserNestedInput
@@ -13145,7 +13335,10 @@ export namespace Prisma {
     credits?: IntFieldUpdateOperationsInput | number
     role?: StringFieldUpdateOperationsInput | string
     plan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    nextPlan?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -13163,7 +13356,10 @@ export namespace Prisma {
     credits?: number
     role?: string
     plan?: string
+    subscriptionStatus?: $Enums.SubscriptionStatus
     stripeCustomerId?: string | null
+    stripeSubscriptionId?: string | null
+    nextPlan?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     accounts?: AccountCreateNestedManyWithoutUserInput
@@ -13181,7 +13377,10 @@ export namespace Prisma {
     credits?: number
     role?: string
     plan?: string
+    subscriptionStatus?: $Enums.SubscriptionStatus
     stripeCustomerId?: string | null
+    stripeSubscriptionId?: string | null
+    nextPlan?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
@@ -13243,7 +13442,10 @@ export namespace Prisma {
     credits?: IntFieldUpdateOperationsInput | number
     role?: StringFieldUpdateOperationsInput | string
     plan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    nextPlan?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     accounts?: AccountUpdateManyWithoutUserNestedInput
@@ -13261,7 +13463,10 @@ export namespace Prisma {
     credits?: IntFieldUpdateOperationsInput | number
     role?: StringFieldUpdateOperationsInput | string
     plan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    nextPlan?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput

@@ -19,11 +19,15 @@ export async function getUserCredits(
   try {
     const user = await db.user.findUnique({
       where: { id: userId },
-      select: { credits: true },
+      select: { credits: true, subscriptionStatus: true },
     });
 
     if (!user) {
       return ErrorFactory.notFound("User");
+    }
+
+    if (user.subscriptionStatus === "PAST_DUE") {
+      return ErrorFactory.subscriptionPastDue();
     }
 
     return success({ credits: user.credits });
@@ -44,10 +48,13 @@ export async function recordUsageAndDeductCredits(
     const billed = await db.$transaction(async (tx) => {
       const user = await tx.user.findUnique({
         where: { id: userId },
-        select: { credits: true },
+        select: { credits: true, subscriptionStatus: true },
       });
       if (!user) {
         return null;
+      }
+      if (user.subscriptionStatus === "PAST_DUE") {
+        return "past_due" as const;
       }
 
       const remainingCredits = Math.max(0, user.credits - creditsDeducted);
@@ -72,6 +79,9 @@ export async function recordUsageAndDeductCredits(
 
     if (billed === null) {
       return ErrorFactory.notFound("User");
+    }
+    if (billed === "past_due") {
+      return ErrorFactory.subscriptionPastDue();
     }
 
     return success({

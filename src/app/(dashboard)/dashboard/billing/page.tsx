@@ -38,6 +38,7 @@ function BillingContent() {
   const [loading, setLoading] = useState(true);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
+  const [nextPlan, setNextPlan] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -59,13 +60,14 @@ function BillingContent() {
             typeof profileJson.data === "object" &&
             profileJson.data !== null
           ) {
-            const data = profileJson.data as { hasStripeCustomer?: boolean; credits?: number };
+            const data = profileJson.data as { hasStripeCustomer?: boolean; credits?: number; nextPlan?: string | null };
             if (typeof data.hasStripeCustomer === "boolean") {
               setHasStripeCustomer(data.hasStripeCustomer);
             }
             if (typeof data.credits === "number") {
               setCredits(data.credits);
             }
+            setNextPlan(typeof data.nextPlan === "string" ? data.nextPlan : null);
           }
         }
 
@@ -105,13 +107,13 @@ function BillingContent() {
     router.replace("/dashboard/billing");
   }, [searchParams, router, updateSession]);
 
-  const handleCheckout = async () => {
+  const handleCheckout = async (planId: "pro" | "free") => {
     setCheckoutLoading(true);
     try {
       const res = await fetch("/api/stripe/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planId: "pro" }),
+        body: JSON.stringify({ planId }),
       });
       const json: unknown = await res.json();
       if (
@@ -125,6 +127,13 @@ function BillingContent() {
         typeof json.data.url !== "string"
       ) {
         throw new Error(apiErrorMessage(json, "Failed to start Checkout"));
+      }
+      const mode = "mode" in json.data && typeof json.data.mode === "string" ? json.data.mode : "checkout";
+      if (mode === "scheduled" || mode === "resumed") {
+        setNextPlan(mode === "resumed" ? null : planId);
+        toast.success(mode === "resumed" ? "The scheduled cancellation was cleared." : "Pro stays active until the period ends.");
+        setCheckoutLoading(false);
+        return;
       }
       window.location.href = json.data.url;
     } catch (err: unknown) {
@@ -184,7 +193,9 @@ function BillingContent() {
         <CardHeader className="p-6 pb-3">
           <CardTitle className="text-base font-bold">Your subscription</CardTitle>
           <CardDescription className="text-xs">
-            Upgrade here. Manage payment methods or cancel in the Stripe customer portal, then return to this page.
+            {nextPlan
+              ? `Pro stays active until the period ends, then the plan changes to ${nextPlan}.`
+              : "Upgrade here. Manage payment methods in the Stripe customer portal."}
           </CardDescription>
         </CardHeader>
         <CardContent className="p-6 pt-0 space-y-4">
@@ -199,7 +210,7 @@ function BillingContent() {
               <Button
                 className="text-xs"
                 disabled={checkoutLoading}
-                onClick={() => void handleCheckout()}
+                onClick={() => void handleCheckout("pro")}
               >
                 {checkoutLoading ? (
                   <>
@@ -230,7 +241,7 @@ function BillingContent() {
                 variant="outline"
                 className="text-xs text-destructive hover:text-destructive"
                 disabled={portalLoading}
-                onClick={() => void handlePortal("cancel")}
+                onClick={() => void handleCheckout("free")}
               >
                 Cancel plan
               </Button>
@@ -310,7 +321,7 @@ function BillingContent() {
                     variant="outline"
                     className="w-full text-xs"
                     disabled={isCurrent || portalLoading || !plan}
-                    onClick={() => void handlePortal("cancel")}
+                    onClick={() => void handleCheckout("free")}
                   >
                     {isCurrent ? (
                       <>
@@ -324,14 +335,16 @@ function BillingContent() {
                 ) : (
                   <Button
                     className="w-full text-xs"
-                    disabled={isCurrent || checkoutLoading || !plan}
-                    onClick={() => void handleCheckout()}
+                    disabled={(isCurrent && !nextPlan) || checkoutLoading || !plan}
+                    onClick={() => void handleCheckout("pro")}
                   >
                     {checkoutLoading ? (
                       <>
                         <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
                         Redirecting…
                       </>
+                    ) : isCurrent && nextPlan ? (
+                      "Keep Pro"
                     ) : isCurrent ? (
                       "Current plan"
                     ) : (
