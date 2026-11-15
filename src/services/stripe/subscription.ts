@@ -433,7 +433,7 @@ export async function handleStripeWebhookEvent(
 ): Promise<Result<WebhookHandleResult>> {
   let restartSubscriptionId: string | null = null;
   try {
-    const result = await db.$transaction(
+    const result: Result<WebhookHandleResult> = await db.$transaction(
       async (tx) => {
         const existing = await tx.stripeEvent.findUnique({
           where: { id: event.id },
