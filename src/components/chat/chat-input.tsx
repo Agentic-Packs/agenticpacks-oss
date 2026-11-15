@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Send, RotateCcw, Square } from "lucide-react";
 
@@ -24,6 +24,23 @@ export function ChatInput({
   hasMessages,
 }: ChatInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [expanded, setExpanded] = useState(false);
+
+  useLayoutEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "40px";
+    const wraps = input.includes("\n") || el.scrollHeight > el.clientHeight + 1;
+    if (wraps !== expanded) setExpanded(wraps);
+    if (!wraps) el.style.height = "40px";
+  }, [input, expanded]);
+
+  useLayoutEffect(() => {
+    const el = textareaRef.current;
+    if (!el || !expanded) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(Math.max(el.scrollHeight, 40), 144)}px`;
+  }, [input, expanded]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -54,7 +71,9 @@ export function ChatInput({
         {/* Input Form */}
         <form
           onSubmit={onSubmit}
-          className="relative flex items-end gap-2 border border-border bg-card p-2 focus-within:ring-2 focus-within:ring-ring"
+          className={`relative flex gap-2 border border-border bg-card p-2 focus-within:ring-2 focus-within:ring-ring ${
+            expanded ? "items-end" : "items-center"
+          }`}
         >
           <textarea
             ref={textareaRef}
@@ -64,7 +83,9 @@ export function ChatInput({
             placeholder="Ask anything or write code... (Press Enter to send)"
             rows={1}
             disabled={isLoading}
-            className="flex-1 max-h-36 min-h-[44px] resize-none border-0 bg-transparent px-3 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none disabled:opacity-50"
+            className={`box-border min-w-0 flex-1 max-h-36 resize-none appearance-none border-0 bg-transparent px-3 text-sm placeholder:text-muted-foreground focus:outline-none disabled:opacity-50 ${
+              expanded ? "overflow-y-auto py-2 leading-5" : "h-10 overflow-hidden py-0 leading-10"
+            }`}
           />
 
           {isLoading ? (
