@@ -9,6 +9,14 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   ArrowRight,
   Check,
   CheckCircle2,
@@ -37,8 +45,10 @@ function BillingContent() {
   const [totalTokens, setTotalTokens] = useState(0);
   const [loading, setLoading] = useState(true);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [checkoutKind, setCheckoutKind] = useState<"checkout" | "other" | null>(null);
   const [portalLoading, setPortalLoading] = useState(false);
   const [nextPlan, setNextPlan] = useState<string | null>(null);
+  const [planDialog, setPlanDialog] = useState<"cancel" | "keep" | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -109,6 +119,7 @@ function BillingContent() {
 
   const handleCheckout = async (planId: "pro" | "free") => {
     setCheckoutLoading(true);
+    setCheckoutKind(planId === "pro" && plan === "free" ? "checkout" : "other");
     try {
       const res = await fetch("/api/stripe/checkout", {
         method: "POST",
@@ -130,15 +141,19 @@ function BillingContent() {
       }
       const mode = "mode" in json.data && typeof json.data.mode === "string" ? json.data.mode : "checkout";
       if (mode === "scheduled" || mode === "resumed") {
+        setPlanDialog(null);
         setNextPlan(mode === "resumed" ? null : planId);
         toast.success(mode === "resumed" ? "The scheduled cancellation was cleared." : "Pro stays active until the period ends.");
         setCheckoutLoading(false);
+        setCheckoutKind(null);
         return;
       }
+      setPlanDialog(null);
       window.location.href = json.data.url;
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Checkout failed");
       setCheckoutLoading(false);
+      setCheckoutKind(null);
     }
   };
 
@@ -241,7 +256,7 @@ function BillingContent() {
                 variant="outline"
                 className="text-xs text-destructive hover:text-destructive"
                 disabled={portalLoading}
-                onClick={() => void handleCheckout("free")}
+                onClick={() => setPlanDialog("cancel")}
               >
                 Cancel plan
               </Button>
@@ -321,7 +336,9 @@ function BillingContent() {
                     variant="outline"
                     className="w-full text-xs"
                     disabled={isCurrent || portalLoading || !plan}
-                    onClick={() => void handleCheckout("free")}
+                    onClick={() => {
+                      if (!isCurrent) setPlanDialog("cancel");
+                    }}
                   >
                     {isCurrent ? (
                       <>
@@ -336,14 +353,20 @@ function BillingContent() {
                   <Button
                     className="w-full text-xs"
                     disabled={(isCurrent && !nextPlan) || checkoutLoading || !plan}
-                    onClick={() => void handleCheckout("pro")}
+                    onClick={() => {
+                      if (isCurrent && nextPlan) {
+                        setPlanDialog("keep");
+                        return;
+                      }
+                      void handleCheckout("pro");
+                    }}
                   >
-                    {checkoutLoading ? (
-                      <>
-                        <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
-                        Redirecting…
-                      </>
-                    ) : isCurrent && nextPlan ? (
+                {checkoutLoading ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
+                    {checkoutKind === "checkout" ? "Redirecting to Checkout..." : "Please wait"}
+                  </>
+                ) : isCurrent && nextPlan ? (
                       "Keep Pro"
                     ) : isCurrent ? (
                       "Current plan"
@@ -380,6 +403,31 @@ function BillingContent() {
           </Button>
         </CardContent>
       </Card>
+
+      <Dialog open={planDialog !== null} onOpenChange={(open) => { if (!open) setPlanDialog(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{planDialog === "keep" ? "Stay on Pro" : "Cancel Pro"}</DialogTitle>
+            <DialogDescription>
+              {planDialog === "keep"
+                ? "You will stay on Pro. The scheduled cancellation will be cleared."
+                : "Pro stays active until the period ends, then the plan becomes Free. Nothing is charged today."}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPlanDialog(null)} disabled={checkoutLoading}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => void handleCheckout(planDialog === "keep" ? "pro" : "free")}
+              disabled={checkoutLoading || !planDialog}
+            >
+              {checkoutLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+              Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
