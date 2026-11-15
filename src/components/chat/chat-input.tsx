@@ -30,7 +30,8 @@ export function ChatInput({
     const el = textareaRef.current;
     if (!el) return;
     el.style.height = "40px";
-    const wraps = input.includes("\n") || el.scrollHeight > el.clientHeight + 1;
+    const wraps =
+      input.includes("\n") || (input.length > 0 && el.scrollHeight > el.clientHeight + 1);
     if (wraps !== expanded) setExpanded(wraps);
     if (!wraps) el.style.height = "40px";
   }, [input, expanded]);
